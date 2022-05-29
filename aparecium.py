@@ -3,11 +3,11 @@ import numpy as np
 import pygame.image
 
 import lumos
-import maraudeurs as backend
+import maraudersMap as backend
 import pygame as pg
 import util
 
-cunt = 0
+frameCount = 0
 pg.init()
 #win = pg.display.set_mode((1280,720))
 
@@ -113,7 +113,7 @@ def winMenu(pos, stroke):
 Winrun = True
 GoLPhase = "simu"
 while Winrun:
-    cunt = cunt + 1
+    frameCount = frameCount + 1
     pg.time.delay(100) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
     if pg.event.get(pg.QUIT):
         Winrun = False
@@ -189,5 +189,6 @@ while Winrun:
 
 
     pg.display.update()
-    print("compteur : ", cunt)
+    print("Frame:",frameCount, "World Size:",World.shape, "Camera Position:", CamX, CamY)
+    
 pg.quit()
