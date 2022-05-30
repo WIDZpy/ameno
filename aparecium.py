@@ -51,7 +51,7 @@ BgClr = BgClrDef = (0,0,0)
 
 StartWorld = np.zeros((128,128))
 life = backend.Life((128, 128))
-life.draw_adapt('canadagoose', (0,0))
+life.draw_adapt('canadagoose', (0,0), rotation=2)
 World = life.getlife()
 
 
@@ -91,30 +91,50 @@ def aparecium(world):
 
 def edgeBorders(active, stroke, world):
     if active:
-        if CamX == 0:
+        if CamX <= stroke:
             pg.draw.rect(win, CellClr, (0,0,stroke,CamH*CellWH + GoLPosY*2))
-        if CamX == world.shape[0] - CamW:
-            pg.draw.rect(win, CellClr, (CamW*CellWH + GoLPosX,0,stroke,CamH*CellWH + GoLPosY*2))
-        if CamY == 0:
+        if CamX >= world.shape[0] - CamW - stroke:
+            pg.draw.rect(win, CellClr, (CamW*CellWH + GoLPosX*1.5,0,stroke,CamH*CellWH + GoLPosY*2))
+        if CamY <= stroke:
             pg.draw.rect(win, CellClr, (0,0,CamH*CellWH + GoLPosY*2,stroke))
-        if CamY == world.shape[1] - CamH:
-            pg.draw.rect(win, CellClr, (0,CamH*CellWH + GoLPosY,CamH*CellWH + GoLPosY*2,stroke))
+        if CamY >= world.shape[1] - CamH - stroke:
+            pg.draw.rect(win, CellClr, (0,CamH*CellWH + GoLPosY*1.5,CamH*CellWH + GoLPosY*2,stroke))
+
+
+
 
 def winMenu(pos, stroke):
     global winMenuState
+
     # margin
     pg.draw.rect(win, BgClr, (pos[0],pos[1],150,220))
+
     # outline # might hardcode it bc useless calculations, stroke arg doesn't look good at other values
     pg.draw.rect(win, CellClr, (pos[0]+stroke, pos[1]+stroke, 150-(stroke*2), 220-(stroke*2)))
     pg.draw.rect(win, BgClr, (pos[0] + (stroke*1.5), pos[1] + (stroke*1.5), 150 - (stroke * 3), 220 - (stroke * 3)))
-    #print(pos)
+
+    # buttons
+
+    ## Play/Pause
+    #pg.draw.rect(win, )
+
+
+
+#def wiiMenu(pos):
+#   global winMenuState
+#   # margin
+#   pg.draw.rect(win, BgClr, (pos[0],pos[1], 150,220))#    # outline
+#   pg.draw.rect(win, CellClr, (pos[0]+4,pos[1]+4, 150-(4*2),220-(4*2)))
+#   pg.draw.rect(win, BgClr, (pos[0]+(4*1.5),pos[1]+(4*1.5), 150-(4*3),220-(4*3)))
+
+
 
 
 Winrun = True
 GoLPhase = "simu"
 while Winrun:
     frameCount = frameCount + 1
-    pg.time.delay(100) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
+    pg.time.delay(16) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
     if pg.event.get(pg.QUIT):
         Winrun = False
 
@@ -181,11 +201,12 @@ while Winrun:
         aparecium(World)
         pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
-    edgeBorders(True, 4, World)
+    edgeBorders(True, 2, World)
 
 
     if winMenuState:
         winMenu(winMenuPos, 4)
+        #wiiMenu(winMenuPos)
 
 
     pg.display.update()
