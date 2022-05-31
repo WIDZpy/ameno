@@ -131,9 +131,9 @@ def winMenu(pos, stroke):
 
 
 Winrun = True
-GoLPhase = "simu"
+GoLPhase = "sim"
+SimRun = True
 while Winrun:
-    frameCount = frameCount + 1
     pg.time.delay(16) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
     if pg.event.get(pg.QUIT):
         Winrun = False
@@ -151,23 +151,15 @@ while Winrun:
             CamY += 1
 
 
-    # keyOn
+    # keyIn
     if pg.event.get(pg.KEYDOWN):
         if pg.key.get_pressed()[pg.K_SPACE]:
-            GoLPhase = "edit" if GoLPhase == "simu" else "simu"
-            #if GoLPhase == "edit":
-            #    GoLPhase = "simu"
-            #    print("edit -> simu")
-            #elif GoLPhase == "simu":
-            #    GoLPhase = "edit"
-            #    print("simu -> edit")
+            #GoLPhase = "edit" if GoLPhase == "simu" else "simu"
+            SimRun = util.switch(SimRun)
         if pg.key.get_pressed()[pg.K_t]:
             BgClr = CellClrDef if BgClr == BgClrDef else BgClrDef
             CellClr = BgClrDef if CellClr == CellClrDef else CellClrDef
 
-    #CamX = util.clamp(CamX, 0, World.shape[1])
-    #CamY = util.clamp(CamY, 0, World.shape[0])
-    #print(CamX,CamY)
 
 
     #if pg.event.get(pg.MOUSEBUTTONUP):
@@ -191,13 +183,16 @@ while Winrun:
     else:
         winPrevMousePos = pg.mouse.get_pos()
 
-    life.evolve()
-    World = life.getlife()
+    # calc next frame
+    if SimRun:
+        life.evolve()
+        World = life.getlife()
+        frameCount += 1
     
 
     if GoLPhase == "edit":
         aparecium(StartWorld)
-    if GoLPhase == "simu":
+    if GoLPhase == "sim":
         aparecium(World)
         pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
