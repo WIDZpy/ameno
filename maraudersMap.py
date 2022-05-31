@@ -1,7 +1,7 @@
 import numpy as np
 from mandragore import readRLE
 from matplotlib.pyplot import imshow, show
-
+from lumos import lumos
 
 class Life:
 
@@ -75,6 +75,10 @@ class Life:
         self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
                                  self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]] = self.restricted_current_life
         self.global_shape = self.global_current_life.shape
+        
+    def draw_random(self, size = "fill" , cord= (0, 0)):
+        if size == "fill":
+           self.global_current_life = lumos(self.global_shape[0],self.global_shape[1])
        
 # ################################################# runing #########################################################
     
@@ -108,7 +112,7 @@ class Life:
         # print(evolve, "\n", self.bordure, "\n", self.restricted_shape)
         self.global_shape = self.global_current_life.shape
         self.restricted_current_life = self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
-                                                                self.bordure[1][0]:self.bordure[0][1]+self.restricted_shape[1]]
+                                                                self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
         
         
         
