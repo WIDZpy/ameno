@@ -1,7 +1,7 @@
 # ameno
 
-This is a GitHub project directed by two students in first year of high school. It aims at recreating Conway's Game of Life in python.  
-*Why ameno? Why choose spells names from Harry Potter? WHY AN EMOJI ';)' ??!*
+This is a GitHub project directed by two students in their first year of high school. It aims at recreating Conway's Game of Life in python.  
+*Why ameno? Why spells names from Harry Potter? WHY AN ';)' EMOJI ??!*
 
 ---
 
