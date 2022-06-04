@@ -5,7 +5,9 @@ import pygame.image
 import lumos
 import maraudersMap as backend
 import pygame as pg
-from util import *
+
+import wandShop
+from wandShop import *
 
 
 pg.init()
@@ -38,19 +40,49 @@ pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 winPrevMousePos = pg.mouse.get_pos()
 winMenuState = False
 winMenuPos = (0,0)
+winMenuSize = (150,220)
+winMenuStroke = 4
+winMenuElements = []
 
-    ## v Other v ##
+    ## v MouseEvents v ##
+
+mouseIn = [False,False,False] # 0=L 1=M 2=R
+mouseOut = [False,False,False]
+mouseOnLastFrame = [False,False,False]
+mouseOn = [False,False,False]
+
+    ## v Customizable v ##
 
 CellSize = 8 # Zoom, in a way
 CellClr = CellClrDef = (255,255,255)
 BgClr = BgClrDef = (0,0,0)
+
+SimSpeed = 2
+
+MouseSensitivity = 16
+
+    ## v Other v ##
 
 CamX = 0
 CamY = 0
 CamW = int(WinW / CellSize)
 CamH = int(WinH / CellSize)
 
-frameCount = 0
+FrameCount = 0
+
+    ## v Preload v ##
+
+pauseImg = pg.image.load("textures/actions/pause.png")
+playImg = pg.image.load("textures/actions/play.png")
+speedImg = pg.image.load("textures/actions/speed.png")
+
+dillan = pg.font.SysFont("Dillan", 16)
+
+pauseLbl = dillan.render("Pause [Toggle]", True, (255, 255, 255))
+playLbl = dillan.render("Play [Toggle]", True, (255, 255, 255))
+speedLbl = dillan.render("Speed [Slider]", True, (255, 255, 255))
+
+
 
 
 
@@ -94,43 +126,114 @@ def edgeBorders(stroke, world):
 
 
 
+def winMenuInit():
+    global winMenuElements, winMenuSize, winMenuStroke
+    size = winMenuSize
+    stroke = winMenuStroke
+    margin = 4
+    origin = stroke*2
 
-def winMenu(pos, stroke):
-    global winMenuState
-    mPos = np.array(pos) # = mutablePos, can't do math on tuples bc they're "immutable"
-    dillan = pg.font.SysFont("Dillan", 16)
+    pause = wandShop.CollisionZone((origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))), (size[0] - 2 * (origin + margin), 16))
+    winMenuElements.append(pause)
+    print(pause.getPos())
+
+    speed = wandShop.CollisionZone((origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))), (size[0] - 2 * (origin + margin), 16))
+    winMenuElements.append(speed)
+    print(speed.getPos())
+
+
+def winMenu():
+    global winMenuElements, winMenuState, winMenuSize, winMenuStroke, winMenuPos, SimRun, SimSpeed
+    elements = winMenuElements
+    size = winMenuSize
+    stroke = winMenuStroke
+    pos = np.array(winMenuPos)
+    #origin = stroke*2
+
+    #mPos = np.array(pos) # = mutablePos, can't do math on tuples bc they're "immutable"
+    #dillan = pg.font.SysFont("Dillan", 16)
 
     # margin
-    pg.draw.rect(win, BgClr, (pos[0],pos[1],150,220))
+    pg.draw.rect(win, BgClr, (pos[0],pos[1],size[0],size[1]))
 
     # outline # might hardcode it bc useless calculations, stroke arg doesn't look good at other values
-    pg.draw.rect(win, CellClr, (pos[0]+stroke, pos[1]+stroke, 150-(stroke*2), 220-(stroke*2)))
-    pg.draw.rect(win, BgClr, (pos[0] + (stroke*1.5), pos[1] + (stroke*1.5), 150 - (stroke * 3), 220 - (stroke * 3)))
-
-    # buttons
-
-    ## Play/Pause
-    buttonNumber = 0
-    prev = pg.image.load("textures/actions/pause.png")
-    win.blit(prev, mPos+(stroke*3,stroke*3 + buttonNumber*16))
-    prevLbl = dillan.render("Pause", True, (255,255,255))
-    win.blit(prevLbl,mPos+(stroke*4 + 16,stroke*3 + 3 + buttonNumber*16)) # 3=distance from top | 2=inBetweenMargin
-
-    buttonNumber = 1
-    speed = pg.image.load("textures/actions/speed.png")
-    win.blit(speed, mPos + (stroke*3, stroke*3 + 2 + buttonNumber*16))
-    speedLbl = dillan.render("Speed [Slider]", True, (255, 255, 255))
-    win.blit(speedLbl, mPos + (stroke*4 + 16, stroke*3 + 3 + 2 + buttonNumber*16))
+    pg.draw.rect(win, CellClr, (pos[0]+stroke, pos[1]+stroke, size[0]-(stroke*2), size[1]-(stroke*2)))
+    pg.draw.rect(win, BgClr, (pos[0] + (stroke*1.5), pos[1] + (stroke*1.5), size[0] - (stroke * 3), size[1] - (stroke * 3)))
 
 
+    for element in range(len(elements)):
+        if elements[element].isHovered(pg.mouse.get_pos(),pos):
+            pg.draw.rect(win, (64,64,64), (elements[element].getPos() + pos, elements[element].getSize()))
+            if element == 0:
+                if mouseOut[0]:
+                    SimRun = wandShop.switch(SimRun)
+            if element == 1:
+                if mouseOut[0]:
+                    SimSpeed -= 4
+                    print(SimSpeed)
+                if mouseOut[2]:
+                    SimSpeed += 4
+                    print(SimSpeed)
+
+    # actions
+    fontOffsetY = 3
+
+    #pause = pg.image.load("textures/actions/pause.png")
+    if SimRun:
+        win.blit(pauseImg, elements[0].getPos() + pos)
+        win.blit(pauseLbl,
+                 (elements[0].getPos()[0] + 16 + stroke + pos[0], elements[0].getPos()[1] + pos[1] + fontOffsetY))
+    else:
+        win.blit(playImg, elements[0].getPos() + pos)
+        win.blit(playLbl,
+                 (elements[0].getPos()[0] + 16 + stroke + pos[0], elements[0].getPos()[1] + pos[1] + fontOffsetY))
+    #pauseLbl = dillan.render("Pause", True, (255,255,255))
+    #print(elements[0].isHovered(pg.mouse.get_pos(),pos))
+
+
+
+    #speed = pg.image.load("textures/actions/speed.png")
+    win.blit(speedImg, elements[1].getPos() + pos)
+    #speedLbl = dillan.render("Speed [Slider]", True, (255, 255, 255))
+    win.blit(speedLbl, (elements[0].getPos()[1] + 16 + stroke + pos[0], elements[1].getPos()[1] + pos[1] + fontOffsetY))
+    #print(elements[1].isHovered(pg.mouse.get_pos(),pos))
+
+
+
+def init():
+    winMenuInit()
+
+init()
 
 Winrun = True
-GoLPhase = "sim"
 SimRun = True
 while Winrun:
     pg.time.delay(8) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
     if pg.event.get(pg.QUIT):
         Winrun = False
+
+
+    for buttons in [0,1,2]:
+        if pg.mouse.get_pressed()[buttons]:
+            mouseOn[buttons] = True
+            if not mouseOnLastFrame[buttons]:
+                mouseIn[buttons] = True
+                #print(mouseIn[buttons])
+            elif mouseIn[buttons]:
+                mouseIn[buttons] = False
+                #print(mouseIn[buttons])
+        else:
+            mouseOn[buttons] = False
+            if mouseOnLastFrame[buttons]:
+                mouseOut[buttons] = True
+                #print(mouseOut[buttons])
+            elif mouseOut[buttons]:
+                mouseOut[buttons] = False
+                #print(mouseOut[buttons])
+    mouseOnLastFrame = pg.mouse.get_pressed()
+    #print(mouseIn,mouseOut,mouseOnLastFrame)
+
+
 
     # if alt then keyIn else keyOn
     if pg.event.get(pg.KEYDOWN) if pg.key.get_pressed()[pg.K_LALT] else pg.key.get_pressed():
@@ -148,10 +251,11 @@ while Winrun:
             CellClr = BgClrDef if CellClr == CellClrDef else CellClrDef
 
 
-    # show winMenu on RClick
-    if pg.mouse.get_pressed()[2] and winMenuState == False:
+    # show winMenu on RClickOut
+    if mouseOut[2] and winMenuState == False:
         winMenuState = True
-        winMenuPos = pg.mouse.get_pos()
+        winMenuPos = np.array(pg.mouse.get_pos())
+        pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
 
     # unfocus winMenu or move
     if pg.mouse.get_pressed()[0]:
@@ -159,8 +263,8 @@ while Winrun:
             if (pg.mouse.get_pos()[0] > winMenuPos[0] + 150 or pg.mouse.get_pos()[0] < winMenuPos[0]) or (pg.mouse.get_pos()[1] < winMenuPos[1] or pg.mouse.get_pos()[1] > winMenuPos[1] + 220):
                 winMenuState = False
         else:
-            CamX += (winPrevMousePos[0] - pg.mouse.get_pos()[0]) / 16
-            CamY += (winPrevMousePos[1] - pg.mouse.get_pos()[1]) / 16
+            CamX += (winPrevMousePos[0] - pg.mouse.get_pos()[0]) / MouseSensitivity
+            CamY += (winPrevMousePos[1] - pg.mouse.get_pos()[1]) / MouseSensitivity
 
             # at the end to be used for the next frame
             winPrevMousePos = pg.mouse.get_pos()
@@ -175,12 +279,13 @@ while Winrun:
 
     # calc next frame
     if SimRun:
-        life.evolve()
-        World = life.getlife()
-        frameCount += 1
+        FrameCount += 1
+        if FrameCount % SimSpeed == 0: # will change
+            life.evolve()
+            World = life.getlife()
         # debug
-        print("Frame:", frameCount, "World Size:", World.shape, "Camera Position:", CamX, CamY, "taille du monde",
-              life.global_shape)
+        #print("Frame:", FrameCount, "World Size:", World.shape, "Camera Position:", CamX, CamY, "taille du monde",
+        #      life.global_shape)
 
     aparecium(World)
 
@@ -196,11 +301,10 @@ while Winrun:
 
     # defer winMenu() to after everything else, position in the code acts as z-index
     if winMenuState:
-        winMenu(winMenuPos, 4)
+        winMenu()
+        #print(winMenuElements[0].isHovered(pg.mouse.get_pos(),winMenuPos))
 
-    # vvv WOW DIS IS IMPORTANT HEY LOOK ITS RIGHT FKIN HERE vvv
+    # update the whole screen
     pg.display.update()
-    # ^^^ SAW IT NAH TOO BAD U MISSED IT BRAINDEAD DUMBA- ^^^
-
 
 pg.quit()
