@@ -22,17 +22,17 @@ pg.init()
 BorderW = 4 # pos of the sim on the win
 BorderH = 4
 
-WinW = 512
-WinH = 512
+GolW = 512
+GolH = 512
 
 WorldW = 128
 WorldH = 128
 
     ## v Win init v ##
 
-win = pg.display.set_mode((WinW + BorderW * 2, WinH + BorderH * 2))
+win = pg.display.set_mode((GolW + BorderW * 2, GolH + BorderH * 2))
 pg.display.set_icon(pygame.image.load('icon.png'))
-pg.display.set_caption("GoL")
+pg.display.set_caption("BC & K6 | Game of Life")
 pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
     ## v WinMenu v ##
@@ -53,34 +53,42 @@ mouseOn = [False,False,False]
 
     ## v Customizable v ##
 
+FrameRate = 60
+
 CellSize = 8 # Zoom, in a way
 CellClr = CellClrDef = (255,255,255)
 BgClr = BgClrDef = (0,0,0)
 
 SimSpeed = 2
 
-MouseSensitivity = 16
+#MouseSensitivity = 1
 
     ## v Other v ##
 
 CamX = 0
 CamY = 0
-CamW = int(WinW / CellSize)
-CamH = int(WinH / CellSize)
+CamW = int(GolW / CellSize)
+CamH = int(GolH / CellSize)
 
 FrameCount = 0
+FrameMS = int(1/FrameRate*1000)
 
     ## v Preload v ##
 
 pauseImg = pg.image.load("textures/actions/pause.png")
 playImg = pg.image.load("textures/actions/play.png")
 speedImg = pg.image.load("textures/actions/speed.png")
+zoomImg = pg.image.load("textures/actions/zoom.png")
+editImg = pg.image.load("textures/actions/edit.png")
 
 dillan = pg.font.SysFont("Dillan", 16)
 
 pauseLbl = dillan.render("Pause [Toggle]", True, (255, 255, 255))
 playLbl = dillan.render("Play [Toggle]", True, (255, 255, 255))
 speedLbl = dillan.render("Speed [Slider]", True, (255, 255, 255))
+zoomLbl = dillan.render("Zoom [Slider]", True, (255, 255, 255))
+editLbl = dillan.render("Edit [Toggle]", True, (255, 255, 255))
+simLbl = dillan.render("Simulate [Toggle]", True, (255, 255, 255))
 
 
 
@@ -99,9 +107,9 @@ def aparecium(world):
     CamX = clamp(CamX, 0, World.shape[0] - CamW)
     CamY = clamp(CamY, 0, World.shape[1] - CamH)
     View = np.array(world[floor(CamY):floor(CamY)+CamH,floor(CamX):floor(CamX)+CamW])
-    
+
     win.fill(BgClr) # fill black / reset
-    
+
     view_cordantate = np.array(np.where(View == 1)).tolist()
     for cy, cx in zip(view_cordantate[0],view_cordantate[1]):
         pg.draw.rect(win, CellClr, (cx * CellSize + BorderW, cy * CellSize + BorderH, CellSize, CellSize))
@@ -109,20 +117,20 @@ def aparecium(world):
 
 
 def edgeBorders(stroke, world):
-    if world.shape[0] < WinW/CellSize or world.shape[1] < WinH/CellSize:
+    if world.shape[0] < GolW/CellSize or world.shape[1] < GolH/CellSize:
         pg.draw.rect(win, CellClr, (0,0, stroke,world.shape[1]*CellSize + BorderH*2))
         pg.draw.rect(win, CellClr, (world.shape[0]*CellSize + BorderW+stroke,0, stroke,world.shape[1]*CellSize + BorderH*2))
         pg.draw.rect(win, CellClr, (0,0, world.shape[0]*CellSize + BorderW*2,stroke))
         pg.draw.rect(win, CellClr, (0,world.shape[1]*CellSize + BorderH+stroke, world.shape[0]*CellSize + BorderW*2, stroke))
     else:
-        if CamX <= stroke:
-            pg.draw.rect(win, CellClr, (0,0, stroke,WinH+BorderH*2))
-        if CamX >= world.shape[0] - CamW - stroke:
-            pg.draw.rect(win, CellClr, (WinW + BorderW*2 - stroke,0, stroke,WinH+BorderH*2))
-        if CamY <= stroke:
-            pg.draw.rect(win, CellClr, (0,0, WinW+BorderW*2,stroke))
-        if CamY >= world.shape[1] - CamH - stroke:
-            pg.draw.rect(win, CellClr, (0,WinH+BorderH*2-stroke, WinW+BorderW*2,stroke))
+        if CamX <= stroke/CellSize:
+            pg.draw.rect(win, CellClr, (0,0, stroke,GolH+BorderH*2))
+        if CamX >= world.shape[0] - CamW - stroke/CellSize:
+            pg.draw.rect(win, CellClr, (GolW + BorderW*2 - stroke,0, stroke,GolH+BorderH*2))
+        if CamY <= stroke/CellSize:
+            pg.draw.rect(win, CellClr, (0,0, GolW+BorderW*2,stroke))
+        if CamY >= world.shape[1] - CamH - stroke/CellSize:
+            pg.draw.rect(win, CellClr, (0,GolH+BorderH*2-stroke, GolW+BorderW*2,stroke))
 
 
 
@@ -133,17 +141,28 @@ def winMenuInit():
     margin = 4
     origin = stroke*2
 
-    pause = wandShop.CollisionZone((origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))), (size[0] - 2 * (origin + margin), 16))
+    pause = wandShop.CollisionZone([origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))],
+                                   [size[0] - 2 * (origin + margin), 16])
     winMenuElements.append(pause)
-    print(pause.getPos())
 
-    speed = wandShop.CollisionZone((origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))), (size[0] - 2 * (origin + margin), 16))
+
+    speed = wandShop.CollisionZone([origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))],
+                                   [size[0] - 2 * (origin + margin), 16])
     winMenuElements.append(speed)
-    print(speed.getPos())
+
+
+    zoom = wandShop.CollisionZone([origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))],
+                                   [size[0] - 2 * (origin + margin), 16])
+    winMenuElements.append(zoom)
+
+
+    edit = wandShop.CollisionZone([origin + margin, origin + margin + ((16 + margin) * len(winMenuElements))],
+                                   [size[0] - 2 * (origin + margin), 16])
+    winMenuElements.append(edit)
 
 
 def winMenu():
-    global winMenuElements, winMenuState, winMenuSize, winMenuStroke, winMenuPos, SimRun, SimSpeed
+    global winMenuElements, winMenuState, winMenuSize, winMenuStroke, winMenuPos, SimRun, SimSpeed, CellSize, CamW, CamH
     elements = winMenuElements
     size = winMenuSize
     stroke = winMenuStroke
@@ -167,37 +186,45 @@ def winMenu():
             if element == 0:
                 if mouseOut[0]:
                     SimRun = wandShop.switch(SimRun)
+
             if element == 1:
                 if mouseOut[0]:
-                    SimSpeed -= 4
-                    print(SimSpeed)
+                    SimSpeed = clamp(SimSpeed/2, 0, 1)
                 if mouseOut[2]:
-                    SimSpeed += 4
-                    print(SimSpeed)
+                    SimSpeed = clamp(SimSpeed*2, 0, 1)
+
+            if element == 2:
+                if mouseOut[0]:
+                    CellSize += 1
+                    CamW = int(GolW / CellSize)
+                    CamH = int(GolH / CellSize)
+                    print("Zoom:", CellSize)
+                if mouseOut[2]:
+                    CellSize -= 1
+                    CellSize = wandShop.clamp(CellSize,1)
+                    CamW = int(GolW / CellSize)
+                    CamH = int(GolH / CellSize)
+                    print("Zoom:", CellSize)
 
     # actions
     fontOffsetY = 3
 
-    #pause = pg.image.load("textures/actions/pause.png")
     if SimRun:
         win.blit(pauseImg, elements[0].getPos() + pos)
-        win.blit(pauseLbl,
-                 (elements[0].getPos()[0] + 16 + stroke + pos[0], elements[0].getPos()[1] + pos[1] + fontOffsetY))
+        win.blit(pauseLbl, (elements[0].getPos()[0] + 16 + stroke + pos[0],
+                            elements[0].getPos()[1] + pos[1] + fontOffsetY))
     else:
         win.blit(playImg, elements[0].getPos() + pos)
-        win.blit(playLbl,
-                 (elements[0].getPos()[0] + 16 + stroke + pos[0], elements[0].getPos()[1] + pos[1] + fontOffsetY))
-    #pauseLbl = dillan.render("Pause", True, (255,255,255))
-    #print(elements[0].isHovered(pg.mouse.get_pos(),pos))
+        win.blit(playLbl, (elements[0].getPos()[0] + 16 + stroke + pos[0],
+                           elements[0].getPos()[1] + pos[1] + fontOffsetY))
 
-
-
-    #speed = pg.image.load("textures/actions/speed.png")
     win.blit(speedImg, elements[1].getPos() + pos)
-    #speedLbl = dillan.render("Speed [Slider]", True, (255, 255, 255))
-    win.blit(speedLbl, (elements[0].getPos()[1] + 16 + stroke + pos[0], elements[1].getPos()[1] + pos[1] + fontOffsetY))
-    #print(elements[1].isHovered(pg.mouse.get_pos(),pos))
+    win.blit(speedLbl, (elements[1].getPos()[0] + 16 + stroke + pos[0],
+                        elements[1].getPos()[1] + pos[1] + fontOffsetY))
 
+    win.blit(zoomImg, elements[2].getPos() + pos)
+    win.blit(zoomLbl, (elements[2].getPos()[0] + 16 + stroke + pos[0],
+                        elements[2].getPos()[1] + pos[1] + fontOffsetY))
 
 
 def init():
@@ -208,7 +235,7 @@ init()
 Winrun = True
 SimRun = True
 while Winrun:
-    pg.time.delay(8) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
+    pg.time.delay(16) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
     if pg.event.get(pg.QUIT):
         Winrun = False
 
@@ -237,8 +264,10 @@ while Winrun:
 
     # if alt then keyIn else keyOn
     if pg.event.get(pg.KEYDOWN) if pg.key.get_pressed()[pg.K_LALT] else pg.key.get_pressed():
-        CamX += int(pg.key.get_pressed()[pg.K_RIGHT]) - int(pg.key.get_pressed()[pg.K_LEFT])
-        CamY += int(pg.key.get_pressed()[pg.K_DOWN]) - int(pg.key.get_pressed()[pg.K_UP])
+        # if the simulation is unzoomed enough to be able to move
+        if World.shape[0] > GolW / CellSize and World.shape[1] > GolH / CellSize:
+            CamX += (int(pg.key.get_pressed()[pg.K_RIGHT]) - int(pg.key.get_pressed()[pg.K_LEFT]))
+            CamY += (int(pg.key.get_pressed()[pg.K_DOWN]) - int(pg.key.get_pressed()[pg.K_UP])) #* int(120 / FrameRate)
 
     # keyIn
     if pg.event.get(pg.KEYDOWN):
@@ -262,12 +291,14 @@ while Winrun:
         if winMenuState:
             if (pg.mouse.get_pos()[0] > winMenuPos[0] + 150 or pg.mouse.get_pos()[0] < winMenuPos[0]) or (pg.mouse.get_pos()[1] < winMenuPos[1] or pg.mouse.get_pos()[1] > winMenuPos[1] + 220):
                 winMenuState = False
+                pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
         else:
-            CamX += (winPrevMousePos[0] - pg.mouse.get_pos()[0]) / MouseSensitivity
-            CamY += (winPrevMousePos[1] - pg.mouse.get_pos()[1]) / MouseSensitivity
+            if World.shape[0] > GolW / CellSize and World.shape[1] > GolH / CellSize:
+                CamX += (winPrevMousePos[0] - pg.mouse.get_pos()[0]) / CellSize #/ MouseSensitivity
+                CamY += (winPrevMousePos[1] - pg.mouse.get_pos()[1]) / CellSize
 
-            # at the end to be used for the next frame
-            winPrevMousePos = pg.mouse.get_pos()
+                # at the end to be used for the next frame
+                winPrevMousePos = pg.mouse.get_pos()
     else:
         winPrevMousePos = pg.mouse.get_pos()
     if pg.mouse.get_pressed()[2]:
@@ -280,14 +311,16 @@ while Winrun:
     # calc next frame
     if SimRun:
         FrameCount += 1
-        if FrameCount % SimSpeed == 0: # will change
+        if FrameCount >= 1/SimSpeed: # will change
             life.evolve()
             World = life.getlife()
+            FrameCount = 0
         # debug
         #print("Frame:", FrameCount, "World Size:", World.shape, "Camera Position:", CamX, CamY, "taille du monde",
         #      life.global_shape)
 
     aparecium(World)
+    print(CamX,CamY, CamW, CamH)
 
     # applied every frame will get rid of eventually actually ima do it now so if u still see this line well idk must have gotten lazy
     #if GoLPhase == "edit":
