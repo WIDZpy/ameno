@@ -2,7 +2,7 @@ import numpy as np
 from mandragore import readRLE
 from matplotlib.pyplot import imshow, show
 from lumos import lumos
-
+# CECI EST UN COMENTAIRE
 
 class Life:
 
