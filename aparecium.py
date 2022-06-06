@@ -5,156 +5,168 @@ import pygame.image
 import lumos
 import maraudersMap as backend
 import pygame as pg
-from util import *
+import util
 
-
+frameCount = 0
 pg.init()
 #win = pg.display.set_mode((1280,720))
 
+GoLPosX = 4
+GoLPosY = 4
 
-
-###################################################### Variables ######################################################
-
-    ## v Preinit vars v ##
-
-BorderW = 4 # pos of the sim on the win
-BorderH = 4
-
-WinW = 512
-WinH = 512
-
-WorldW = 128
-WorldH = 128
-
-    ## v Win init v ##
-
-win = pg.display.set_mode((WinW + BorderW * 2, WinH + BorderH * 2))
-pg.display.set_icon(pygame.image.load('icon.png'))
+win = pg.display.set_mode((512+GoLPosX*2,512+GoLPosY*2))
+pg.display.set_icon(pygame.image.load('test.png'))
 pg.display.set_caption("GoL")
-pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
-    ## v WinMenu v ##
+
 
 winPrevMousePos = pg.mouse.get_pos()
 winMenuState = False
 winMenuPos = (0,0)
 
-    ## v Other v ##
+CamX = 0
+CamY = 0
+CamW = 32
+CamH = 32
 
-CellSize = 8 # Zoom, in a way
+CellWH = 16
 CellClr = CellClrDef = (255,255,255)
 BgClr = BgClrDef = (0,0,0)
 
-CamX = 0
-CamY = 0
-CamW = int(WinW / CellSize)
-CamH = int(WinH / CellSize)
-
-frameCount = 0
 
 
+#World = lumos.lumos(4,4,3)
+#World = np.array([[0,1,0,1],[0,1,1,0],[0,1,0,0],[1,0,0,1]])
 
-######################################################### Core #########################################################
+#View = np.array(World)
+#print(View)
 
-life = backend.Life((WorldW, WorldH))
-life.draw_adapt('canadagoose', (0,0), rotation=2)
+#print()
+
+#View = np.array(World[1:3,1:3])
+#View.resize()
+#print(View)
+
+
+
+StartWorld = np.zeros((128,128))
+life = backend.Life((128, 128))
+# life.draw_adapt('canadagoose', (0,0), rotation=2)
+life.draw_adapt('scotsp5', (12, 22), rotation=2)
+# life.global_current_life[10,11] = 1
+# life.global_current_life[10,12] = 1
+# life.global_current_life[10,10] = 1
+# life.draw_random(size="fill")
 World = life.getlife()
 
+life.point_and_clic((0, 0))
+life.point_and_clic((1, 0))
+life.point_and_clic((2, 0))
 
 
 def aparecium(world):
+    #global CamX, CamY #, CamW, CamH
+    #World = np.array([[0,1,0,1],[0,1,1,0],[0,1,0,0],[1,0,0,1]])
+    #View = np.zeros(World.shape)
+    #View = np.zeros((CamW,CamH))
+    
     global CamX, CamY
-    CamX = clamp(CamX, 0, World.shape[0] - CamW)
-    CamY = clamp(CamY, 0, World.shape[1] - CamH)
+    CamX = util.clamp(CamX, 0, world.shape[0] - CamW)
+    CamY = util.clamp(CamY, 0, world.shape[1] - CamH)
+    #print(CamX,CamY)
     View = np.array(world[floor(CamY):floor(CamY)+CamH,floor(CamX):floor(CamX)+CamW])
-    
-    win.fill(BgClr) # fill black / reset
-    
+    win.fill(BgClr)
     view_cordantate = np.array(np.where(View == 1)).tolist()
     for cy, cx in zip(view_cordantate[0],view_cordantate[1]):
-        pg.draw.rect(win, CellClr, (cx * CellSize + BorderW, cy * CellSize + BorderH, CellSize, CellSize))
+        pg.draw.rect(win, CellClr, (cx * CellWH + GoLPosX, cy * CellWH + GoLPosY, CellWH, CellWH))
+    
+    
+    
+    
+    
+    
+    
+    #Empty[CamX:CamX+CamW,CamY:CamY+CamH] = View
+    #View.resize(4,4)
+    #print(CamX,CamY,"\n",View,"\n")
+    #for cx in range(len(View)):
+    #    for cy in range(len(View[cx])):
+    #
+    #        if View[cy, cx] == 1:
+    #            pg.draw.rect(win, CellClr, (cx*CellWH + GoLPosX, cy*CellWH + GoLPosY, CellWH, CellWH))
+            #else:
+                #pg.draw.rect(win, BgClr, (cx*CellWH, cy*CellWH, CellWH, CellWH))
 
-
-
-def edgeBorders(stroke, world):
-    if world.shape[0] < WinW/CellSize or world.shape[1] < WinH/CellSize:
-        pg.draw.rect(win, CellClr, (0,0, stroke,world.shape[1]*CellSize + BorderH*2))
-        pg.draw.rect(win, CellClr, (world.shape[0]*CellSize + BorderW+stroke,0, stroke,world.shape[1]*CellSize + BorderH*2))
-        pg.draw.rect(win, CellClr, (0,0, world.shape[0]*CellSize + BorderW*2,stroke))
-        pg.draw.rect(win, CellClr, (0,world.shape[1]*CellSize + BorderH+stroke, world.shape[0]*CellSize + BorderW*2, stroke))
-    else:
-        if CamX <= stroke:
-            pg.draw.rect(win, CellClr, (0,0, stroke,WinH+BorderH*2))
-        if CamX >= world.shape[0] - CamW - stroke:
-            pg.draw.rect(win, CellClr, (WinW + BorderW*2 - stroke,0, stroke,WinH+BorderH*2))
-        if CamY <= stroke:
-            pg.draw.rect(win, CellClr, (0,0, WinW+BorderW*2,stroke))
-        if CamY >= world.shape[1] - CamH - stroke:
-            pg.draw.rect(win, CellClr, (0,WinH+BorderH*2-stroke, WinW+BorderW*2,stroke))
-
-
-
+def edgeBorders(active, stroke, world):
+    if active:
+        if CamX == 0:
+            pg.draw.rect(win, CellClr, (0,0,stroke,CamH*CellWH + GoLPosY*2))
+        if CamX == world.shape[0] - CamW:
+            pg.draw.rect(win, CellClr, (CamW*CellWH + GoLPosX,0,stroke,CamH*CellWH + GoLPosY*2))
+        if CamY == 0:
+            pg.draw.rect(win, CellClr, (0,0,CamH*CellWH + GoLPosY*2,stroke))
+        if CamY == world.shape[1] - CamH:
+            pg.draw.rect(win, CellClr, (0,CamH*CellWH + GoLPosY,CamH*CellWH + GoLPosY*2,stroke))
 
 def winMenu(pos, stroke):
     global winMenuState
-    mPos = np.array(pos) # = mutablePos, can't do math on tuples bc they're "immutable"
-    dillan = pg.font.SysFont("Dillan", 16)
-
     # margin
     pg.draw.rect(win, BgClr, (pos[0],pos[1],150,220))
-
     # outline # might hardcode it bc useless calculations, stroke arg doesn't look good at other values
     pg.draw.rect(win, CellClr, (pos[0]+stroke, pos[1]+stroke, 150-(stroke*2), 220-(stroke*2)))
     pg.draw.rect(win, BgClr, (pos[0] + (stroke*1.5), pos[1] + (stroke*1.5), 150 - (stroke * 3), 220 - (stroke * 3)))
-
-    # buttons
-
-    ## Play/Pause
-    buttonNumber = 0
-    prev = pg.image.load("textures/actions/pause.png")
-    win.blit(prev, mPos+(stroke*3,stroke*3 + buttonNumber*16))
-    prevLbl = dillan.render("Pause", True, (255,255,255))
-    win.blit(prevLbl,mPos+(stroke*4 + 16,stroke*3 + 3 + buttonNumber*16)) # 3=distance from top | 2=inBetweenMargin
-
-    buttonNumber = 1
-    speed = pg.image.load("textures/actions/speed.png")
-    win.blit(speed, mPos + (stroke*3, stroke*3 + 2 + buttonNumber*16))
-    speedLbl = dillan.render("Speed [Slider]", True, (255, 255, 255))
-    win.blit(speedLbl, mPos + (stroke*4 + 16, stroke*3 + 3 + 2 + buttonNumber*16))
-
+    #print(pos)
 
 
 Winrun = True
-GoLPhase = "sim"
-SimRun = True
+GoLPhase = "simu"
 while Winrun:
-    pg.time.delay(8) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
+    frameCount = frameCount + 1
+    pg.time.delay(10) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
     if pg.event.get(pg.QUIT):
         Winrun = False
 
-    # if alt then keyIn else keyOn
-    if pg.event.get(pg.KEYDOWN) if pg.key.get_pressed()[pg.K_LALT] else pg.key.get_pressed():
-        CamX += int(pg.key.get_pressed()[pg.K_RIGHT]) - int(pg.key.get_pressed()[pg.K_LEFT])
-        CamY += int(pg.key.get_pressed()[pg.K_DOWN]) - int(pg.key.get_pressed()[pg.K_UP])
+    # if alt then keyIn else keyOn*
 
-    # keyIn
+    if (pg.event.get(pg.KEYDOWN) if pg.key.get_pressed()[pg.K_LALT] else pg.key.get_pressed()):
+        if pg.key.get_pressed()[pg.K_RIGHT]:
+            CamX += 1
+        if pg.key.get_pressed()[pg.K_LEFT]:
+            CamX -= 1
+        if pg.key.get_pressed()[pg.K_UP]:
+            CamY -= 1
+        if pg.key.get_pressed()[pg.K_DOWN]:
+            CamY += 1
+
+
+    # keyOn
     if pg.event.get(pg.KEYDOWN):
         if pg.key.get_pressed()[pg.K_SPACE]:
-            #GoLPhase = "edit" if GoLPhase == "simu" else "simu"
-            SimRun = switch(SimRun)
+            GoLPhase = "edit" if GoLPhase == "simu" else "simu"
+            #if GoLPhase == "edit":
+            #    GoLPhase = "simu"
+            #    print("edit -> simu")
+            #elif GoLPhase == "simu":
+            #    GoLPhase = "edit"
+            #    print("simu -> edit")
         if pg.key.get_pressed()[pg.K_t]:
-            # swap
             BgClr = CellClrDef if BgClr == BgClrDef else BgClrDef
             CellClr = BgClrDef if CellClr == CellClrDef else CellClrDef
 
+    #CamX = util.clamp(CamX, 0, World.shape[1])
+    #CamY = util.clamp(CamY, 0, World.shape[0])
+    #print(CamX,CamY)
 
-    # show winMenu on RClick
+
+    #if pg.event.get(pg.MOUSEBUTTONUP):
     if pg.mouse.get_pressed()[2] and winMenuState == False:
+        #print(pg.event.get(pg.MOUSEBUTTONUP))
         winMenuState = True
         winMenuPos = pg.mouse.get_pos()
+    #if pg.mouse.get_pressed()[1] and winMenuState == True:
 
-    # unfocus winMenu or move
     if pg.mouse.get_pressed()[0]:
+        #print(pg.mouse.get_pos(), winMenuPos)
         if winMenuState:
             if (pg.mouse.get_pos()[0] > winMenuPos[0] + 150 or pg.mouse.get_pos()[0] < winMenuPos[0]) or (pg.mouse.get_pos()[1] < winMenuPos[1] or pg.mouse.get_pos()[1] > winMenuPos[1] + 220):
                 winMenuState = False
@@ -166,41 +178,25 @@ while Winrun:
             winPrevMousePos = pg.mouse.get_pos()
     else:
         winPrevMousePos = pg.mouse.get_pos()
-    if pg.mouse.get_pressed()[2]:
-        if winMenuState:
-            if (pg.mouse.get_pos()[0] > winMenuPos[0] + 150 or pg.mouse.get_pos()[0] < winMenuPos[0]) or (pg.mouse.get_pos()[1] < winMenuPos[1] or pg.mouse.get_pos()[1] > winMenuPos[1] + 220):
-                winMenuState = False
+
+    life.evolve()
+    World = life.getlife()
+    
+
+    if GoLPhase == "edit":
+        aparecium(StartWorld)
+    if GoLPhase == "simu":
+        aparecium(World)
+        pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
+
+    edgeBorders(True, 4, World)
 
 
-
-    # calc next frame
-    if SimRun:
-        life.evolve()
-        World = life.getlife()
-        frameCount += 1
-        # debug
-        print("Frame:", frameCount, "World Size:", World.shape, "Camera Position:", CamX, CamY, "taille du monde",
-              life.global_shape)
-
-    aparecium(World)
-
-    # applied every frame will get rid of eventually actually ima do it now so if u still see this line well idk must have gotten lazy
-    #if GoLPhase == "edit":
-    #    aparecium(StartWorld)
-    #if GoLPhase == "sim":
-
-
-    # ITS IN DA NAME FFS U RLY NEED A COMMENT FOR DIS
-    if True:
-        edgeBorders(2, World)
-
-    # defer winMenu() to after everything else, position in the code acts as z-index
     if winMenuState:
         winMenu(winMenuPos, 4)
 
-    # vvv WOW DIS IS IMPORTANT HEY LOOK ITS RIGHT FKIN HERE vvv
+
     pg.display.update()
-    # ^^^ SAW IT NAH TOO BAD U MISSED IT BRAINDEAD DUMBA- ^^^
-
-
+    print("Frame:", frameCount, "World Size:", World.shape, "Camera Position:", CamX, CamY, "taille de globale", life.global_current_life.shape)
+    
 pg.quit()

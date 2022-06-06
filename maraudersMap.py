@@ -3,6 +3,7 @@ from mandragore import readRLE
 from matplotlib.pyplot import imshow, show
 from lumos import lumos
 
+
 class Life:
 
     def __init__(self, shape=(1, 1), max_x_y=(-1, -1)):
@@ -15,6 +16,17 @@ class Life:
         self.global_current_life = np.zeros(shape)
         self.restricted_current_life = np.zeros(shape)
         self.bordure = [[0, 0], [0, 0]]
+        self.max_x_y = max_x_y
+        
+        self.dictionaire = {
+            'start_shape': shape,
+            'max': self.max_x_y,
+            'iport_patern': {
+                'patern_1': {
+                
+                }
+            }
+        }
     
 #   ################################################## getter ##########################################################
     
@@ -28,10 +40,26 @@ class Life:
         print(np.array(np.where(self.restricted_current_life == 1)), type(self.restricted_current_life))
         return np.array(np.where(self.restricted_current_life == 1)).tolist()
         
+#   ################################################## edit ###########################################################
+    def point_and_clic(self, cord):
+        v = self.restricted_current_life[cord]
+        self.restricted_current_life[cord] = self.global_current_life[self.bordure[0][0]+cord[0],
+                                                                      self.bordure[1][0]+cord[1]] = 0 if v else 1
+        
     
-#   ################################################## start ###########################################################
-    
-    def draw_not_adapt(self,looper=True):
+    def load(self, dictionaire):
+        self.restricted_shape = self.global_shape = dictionaire['start_shape']
+        self.global_current_life = self.restricted_current_life = np.zeros(self.restricted_shape)
+        
+        self.max_x_y = dictionaire['max']
+        
+        for loop in dictionaire['import_adapt']:
+            for bloop in loop:
+                self.draw_adapt(bloop['fill'])
+                
+                
+                
+    def draw_not_adapt(self, looper=True):
         return
 
     def draw_adapt(self, file, pattern_xy=(0, 0), mirror_x=1, mirror_y=1, rotation=0, pading=None):
@@ -47,7 +75,7 @@ class Life:
         # definition des varibles :
         if pading is None:
             pading = [[0, 0], [0, 0]]
-        pading=np.flip(pading,0)
+        pading = np.flip(pading, 0)
         rle = np.rot90(readRLE(file), 0-rotation)
         rlesize = rle.shape
         t_x = 1
@@ -62,7 +90,6 @@ class Life:
                                               [[0, self.restricted_shape[0] - self.restricted_current_life.shape[0]],
                                                [0, self.restricted_shape[1] - self.restricted_current_life.shape[1]]])
 
-
         bidul = (pattern_xy[1], pattern_xy[1] + rlesize[0],
                  pattern_xy[0], pattern_xy[0] + rlesize[1])
 
@@ -73,13 +100,17 @@ class Life:
         print(self.restricted_shape)
         self.global_current_life = np.zeros(self.restricted_shape)
         self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
-                                 self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]] = self.restricted_current_life
+                                 self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]] =\
+            self.restricted_current_life
+        
         self.global_shape = self.global_current_life.shape
         
-    def draw_random(self, size = "fill" , cord= (0, 0)):
-        if size == "fill":
-           self.global_current_life = lumos(self.global_shape[0],self.global_shape[1])
-       
+    def draw_random(self):
+        self.global_current_life = lumos(self.global_shape[0], self.global_shape[1])
+        self.restricted_current_life =\
+            self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
+                                     self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
+
 # ################################################# runing #########################################################
     
     def evolve(self, repet=1):
@@ -113,14 +144,11 @@ class Life:
         self.global_shape = self.global_current_life.shape
         self.restricted_current_life = self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
                                                                 self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
-        
-        
-        
     
     
 if __name__ == '__main__':
-    life = Life((0,0))
-    #life.starte_adapt('canadagoose', (20, 0))
+    life = Life((0, 0))
+    # life.starte_adapt('canadagoose', (20, 0))
     life.draw_adapt('canadagoose', (0, 0))
     print(life.restricted_current_life)
     
