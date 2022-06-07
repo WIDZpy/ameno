@@ -55,7 +55,7 @@ class Life:
         
         for loop in dictionaire['import_adapt']:
             for bloop in loop:
-                self.draw_adapt(bloop['fill'],bloop[''])
+                self.draw_adapt(bloop['fill'],bloop[''], bloop[''])
                 
                 
                 
