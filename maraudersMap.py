@@ -2,7 +2,9 @@ import numpy as np
 from mandragore import readRLE
 from matplotlib.pyplot import imshow, show
 from lumos import lumos
+
 # CECI EST UN COMENTAIRE
+
 
 class Life:
 
@@ -45,19 +47,16 @@ class Life:
         v = self.restricted_current_life[cord]
         self.restricted_current_life[cord] = self.global_current_life[self.bordure[0][0]+cord[0],
                                                                       self.bordure[1][0]+cord[1]] = 0 if v else 1
-        
-    
+
     def load(self, dictionaire):
         self.restricted_shape = self.global_shape = dictionaire['start_shape']
         self.global_current_life = self.restricted_current_life = np.zeros(self.restricted_shape)
         
         self.max_x_y = dictionaire['max']
         
-        for loop in dictionaire['import_adapt']:
-            for bloop in loop:
+        for looop in dictionaire['import_adapt']:
+            for bloop in looop:
                 self.draw_adapt(bloop['fill'], bloop[''], bloop[''])
-                
-                
                 
     def draw_not_adapt(self, looper=True):
         return
@@ -66,10 +65,10 @@ class Life:
         """
         :param file: Read the RLE file on the website 'https://conwaylife.com/wiki/Category:Patterns'
         :param pattern_xy: coordinates of the point (0;0) on the main array (default is (0,0))
-        :param mirror_x: assign -1 if you want the paterne to be inverted horizontally (default is 1)
-        :param mirror_y: assign -1 if you want the paterne to be inverted vertically (default is 1)
-        :param rotation: nuber of time to  aray is 90° ratate
-        :param padding: added pixels at the edge of the arrray ([[left,right],[up,down]])
+        :param mirror_x: assign -1 if you want the pattern to be inverted horizontally (default is 1)
+        :param mirror_y: assign -1 if you want the pattern to be inverted vertically (default is 1)
+        :param rotation: nuber of time to  aray is 90° rotate
+        :param padding: added pixels at the edge of the array ([[left,right],[up,down]])
         :return:
         """
         # definition des varibles :
