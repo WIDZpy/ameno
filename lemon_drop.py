@@ -16,13 +16,14 @@ class lemon:
 		style = ttk.Style(self.window)
 		style.configure("Button", background="red")
 		style.map('Button', background=[('active', 'red')])
-		self.window.tk.call('source', 'azure dark 2/azure dark.tcl')
+		self.window.tk.call('source', 'textures/azure dark 2/azure dark.tcl')
 		style.theme_use('azure')
 	
 	def save(self):
 		return
 	
-	def lunche
+	def lunche(self):
+		return
 	
 	def printttt(self):
 		print(1)
@@ -42,10 +43,7 @@ class lemon:
 		buton_clear.grid(row=0, column=2, padx=5, pady=5)
 		# ---------------------------------------------------------------------------------
 		
-		
-		
-		
-	
+
 if __name__ == '__main__':
 	le = lemon()
 	le.aficher()
