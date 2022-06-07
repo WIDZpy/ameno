@@ -62,20 +62,20 @@ class Life:
     def draw_not_adapt(self, looper=True):
         return
 
-    def draw_adapt(self, file, pattern_xy=(0, 0), mirror_x=1, mirror_y=1, rotation=0, pading=None):
+    def draw_adapt(self, file, pattern_xy=(0, 0), mirror_x=1, mirror_y=1, rotation=0, padding=None):
         """
         :param file: Read the RLE file on the website 'https://conwaylife.com/wiki/Category:Patterns'
         :param pattern_xy: coordinates of the point (0;0) on the main array (default is (0,0))
         :param mirror_x: assign -1 if you want the paterne to be inverted horizontally (default is 1)
         :param mirror_y: assign -1 if you want the paterne to be inverted vertically (default is 1)
         :param rotation: nuber of time to  aray is 90° ratate
-        :param pading: added pixels at the edge of the arrray ([[left,right],[up,down]])
+        :param padding: added pixels at the edge of the arrray ([[left,right],[up,down]])
         :return:
         """
         # definition des varibles :
-        if pading is None:
-            pading = [[0, 0], [0, 0]]
-        pading = np.flip(pading, 0)
+        if padding is None:
+            padding = [[0, 0], [0, 0]]
+        padding = np.flip(padding, 0)
         rle = np.rot90(readRLE(file), 0-rotation)
         rlesize = rle.shape
         t_x = 1
@@ -94,7 +94,7 @@ class Life:
                  pattern_xy[0], pattern_xy[0] + rlesize[1])
 
         self.restricted_current_life[bidul[0]:bidul[1], bidul[2]:bidul[3]] = rle[::mirror_y, ::mirror_x]
-        self.restricted_current_life = np.pad(self.restricted_current_life, pading)
+        self.restricted_current_life = np.pad(self.restricted_current_life, padding)
         
         self.restricted_shape = self.restricted_current_life.shape
         print(self.restricted_shape)
