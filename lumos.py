@@ -3,6 +3,7 @@
 import numpy as np
 import random as rnd
 
+
 def lumos(w, h):
     # World = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
     World = np.array([0])
@@ -11,5 +12,6 @@ def lumos(w, h):
         for y in range(h):
             World[x][y] = rnd.randint(0, 1)
     return World
+
 
 print(lumos(4, 4))
