@@ -9,7 +9,6 @@ from util import *
 
 
 pg.init()
-#win = pg.display.set_mode((1280,720))
 
 
 
