@@ -3,8 +3,7 @@ from mandragore import readRLE, lumos
 import json
 from matplotlib.pyplot import imshow, show
 
-
-
+'''les calcule'''
 
 class Life:
 

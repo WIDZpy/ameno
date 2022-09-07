@@ -1,24 +1,60 @@
 from math import *
 import numpy as np
 import pygame.image
-
-
 import maraudersMap as backend
 import pygame as pg
 import mandragore
 
-'''le boirdele de maxime'''
+'''réorganisation'''
+
+class Win:
+    def __init__(self):
+        self.win = pg.display.set_mode((700, 700))
+        self.CamX = 0
+        self.CamY = 0
+        self.winPrevMousePos = pg.mouse.get_pos()
+        self.CellClr = (255, 255, 255)
+        self.BgClr = (0, 0, 0)
+        self.CamW = 64
+        self.CamH = 64
+        pg.display.set_icon(pygame.image.load('textures/logo.png'))
+        pg.display.set_caption("John Conway's Game of Life")
+        return
+
+    def show(self):
+        return
+
+    def log(self):
+        print()
+
+    def aparecium(world):
+        '''
+        :param world: l'array a aficher dans la fenetre pygame
+        '''
+        global CamX, CamY
+        CamX = mandragore.clamp(CamX, 0, world.shape[0] - CamW)
+        CamY = mandragore.clamp(CamY, 0, world.shape[1] - CamH)
+        # print(CamX,CamY)
+        View = np.array(world[floor(CamY):floor(CamY) + CamH, floor(CamX):floor(CamX) + CamW])
+        win.fill(BgClr)
+        view_cordantate = np.array(np.where(View == 1)).tolist()
+        for cy, cx in zip(view_cordantate[0], view_cordantate[1]):
+            pg.draw.rect(win, CellClr, (cx * CellWH + GoLPosX, cy * CellWH + GoLPosY, CellWH, CellWH))
+
+
+
+'''le boirdel de maxime'''
 
 frameCount = 0
-pg.init()
+
 #win = pg.display.set_mode((1280,720))
 
 GoLPosX = 4
 GoLPosY = 4
 
-win = pg.display.set_mode((512+GoLPosX*2,512+GoLPosY*2))
-pg.display.set_icon(pygame.image.load('test.png'))
-pg.display.set_caption("GoL")
+win = pg.display.set_mode((512+GoLPosX*2, 512+GoLPosY*2))
+pg.display.set_icon(pygame.image.load('textures/logo.png'))
+pg.display.set_caption("John Conway's Game of Life")
 
 
 
@@ -32,8 +68,8 @@ CamW = 64
 CamH = 64
 
 CellWH = 8
-CellClr = CellClrDef = (255,255,255)
-BgClr = BgClrDef = (0,0,0)
+CellClr = CellClrDef = (255, 255, 255)
+BgClr = BgClrDef = (0, 0, 0)
 
 
 
@@ -66,21 +102,7 @@ life.point_and_clic((1, 0))
 life.point_and_clic((2, 0))
 
 
-def aparecium(world):
-    #global CamX, CamY #, CamW, CamH
-    #World = np.array([[0,1,0,1],[0,1,1,0],[0,1,0,0],[1,0,0,1]])
-    #View = np.zeros(World.shape)
-    #View = np.zeros((CamW,CamH))
-    
-    global CamX, CamY
-    CamX = mandragore.clamp(CamX, 0, world.shape[0] - CamW)
-    CamY = mandragore.clamp(CamY, 0, world.shape[1] - CamH)
-    #print(CamX,CamY)
-    View = np.array(world[floor(CamY):floor(CamY)+CamH,floor(CamX):floor(CamX)+CamW])
-    win.fill(BgClr)
-    view_cordantate = np.array(np.where(View == 1)).tolist()
-    for cy, cx in zip(view_cordantate[0],view_cordantate[1]):
-        pg.draw.rect(win, CellClr, (cx * CellWH + GoLPosX, cy * CellWH + GoLPosY, CellWH, CellWH))
+
     
     
     
@@ -200,5 +222,5 @@ while Winrun:
 
     pg.display.update()
     print("Frame:", frameCount, "World Size:", World.shape, "Camera Position:", CamX, CamY, "taille de globale", life.global_current_life.shape)
-    
+
 pg.quit()

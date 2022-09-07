@@ -1,11 +1,15 @@
 import pygame as pg
-import lemon_drop as tk_win
+from time import *
+# import lemon_drop as tk_win
+# import aparecium as pg_win
 
-
-programe_run = True
-clock = pg.time.Clock()
-while programe_run:
-	clock.tick(30)
-	if pg.event.get(pg.QUIT):
-		programe_run = False
-	if pg_win.run
+if __name__ == '__main__':
+	pg.init()
+	clock = pg.time.Clock()
+	frameCount = 0
+	program_run = True
+	while program_run:
+		clock.tick(30)
+		if pg.event.get(pg.QUIT):
+			program_run = False
+	#	if pg_win.run
