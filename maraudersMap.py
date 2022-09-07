@@ -1,9 +1,9 @@
 import numpy as np
-from mandragore import readRLE
+from mandragore import readRLE, lumos
+import json
 from matplotlib.pyplot import imshow, show
-from lumos import lumos
 
-# CECI EST UN COMENTAIRE
+
 
 
 class Life:
@@ -43,6 +43,7 @@ class Life:
         return np.array(np.where(self.restricted_current_life == 1)).tolist()
         
 #   ################################################## edit ###########################################################
+    
     def point_and_clic(self, cord):
         v = self.restricted_current_life[cord]
         self.restricted_current_life[cord] = self.global_current_life[self.bordure[0][0]+cord[0],
@@ -56,7 +57,8 @@ class Life:
         
         for looop in dictionaire['import_adapt']:
             for bloop in looop:
-                self.draw_adapt(bloop['fill'], bloop[''], bloop[''])
+                self.draw_adapt(bloop['fill'], bloop['coordinate x y'], bloop['mirror x'], bloop['mirror Y'],
+                                bloop['rotation'], bloop['padding'])
                 
     def draw_not_adapt(self, looper=True):
         return
@@ -77,14 +79,14 @@ class Life:
         padding = np.flip(padding, 0)
         rle = np.rot90(readRLE(file), 0-rotation)
         rlesize = rle.shape
-        t_x = 1
-        t_y = 1
+        # t_x = 1
+        # t_y = 1
 
         self.restricted_shape = (self.restricted_shape[0] if
                                  self.restricted_shape[0] >= rlesize[0] + pattern_xy[1] else rlesize[0] + pattern_xy[1],
                                  self.restricted_shape[1] if
                                  self.restricted_shape[1] >= rlesize[1] + pattern_xy[0] else rlesize[1] + pattern_xy[0])
-        
+
         self.restricted_current_life = np.pad(self.restricted_current_life,
                                               [[0, self.restricted_shape[0] - self.restricted_current_life.shape[0]],
                                                [0, self.restricted_shape[1] - self.restricted_current_life.shape[1]]])
@@ -94,16 +96,16 @@ class Life:
 
         self.restricted_current_life[bidul[0]:bidul[1], bidul[2]:bidul[3]] = rle[::mirror_y, ::mirror_x]
         self.restricted_current_life = np.pad(self.restricted_current_life, padding)
-        
+
         self.restricted_shape = self.restricted_current_life.shape
         print(self.restricted_shape)
         self.global_current_life = np.zeros(self.restricted_shape)
         self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
                                  self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]] =\
             self.restricted_current_life
-        
+
         self.global_shape = self.global_current_life.shape
-        
+
     def draw_random(self):
         self.global_current_life = lumos(self.global_shape[0], self.global_shape[1])
         self.restricted_current_life =\
@@ -141,8 +143,9 @@ class Life:
         self.global_current_life = evolve.astype(int)
         # print(evolve, "\n", self.bordure, "\n", self.restricted_shape)
         self.global_shape = self.global_current_life.shape
-        self.restricted_current_life = self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
-                                                                self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
+        self.restricted_current_life\
+            = self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
+                                       self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
     
     
 if __name__ == '__main__':

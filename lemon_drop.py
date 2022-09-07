@@ -27,7 +27,7 @@ class lemon:
 	
 	def printttt(self):
 		print(1)
-	
+
 	def aficher(self):
 		frame_prinsipale = ttk.Frame(self.window).grid(row=0)
 		

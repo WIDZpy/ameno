@@ -2,10 +2,8 @@
   "start_camera": [16, 16],
   "start_shape" : [0, 0],
   "max"         : [-1, -1],
-  "import_adapt":
-  {
-    "pattern 1"  :
-    {
+  "import_adapt": {
+    "pattern 1"  : {
       "fill"     : "canadagoas",
       "coordinate x y" : [10, -10],
       "mirror x" : 1,

@@ -1,7 +1,33 @@
 import numpy as np
+import random as rnd
+'''
+util function
+'''
+def lumos(w, h):
+    # World = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
+    World = np.array([0])
+    World.resize(w, h)
+    for x in range(w):
+        for y in range(h):
+            World[x][y] = rnd.randint(0, 1)
+    return World
 
+def clamp(var, low, high):
+    out = var
+    if var > high:
+        out = high
+    elif var < low:
+        out = low
+    return out
+
+def cluster():
+    pass
+
+def switch(var):
+    return 1 - var
 
 def readRLE(filename, c_shape=(50, 50)):
+    '''la fonction qui permet de lire les rle'''
     if filename == 1:
         return np.zeros(c_shape).astype(int)
     filename = "rle/" + filename + ".rle"

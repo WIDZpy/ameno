@@ -2,10 +2,12 @@ from math import *
 import numpy as np
 import pygame.image
 
-import lumos
+
 import maraudersMap as backend
 import pygame as pg
-import util
+import mandragore
+
+'''le boirdele de maxime'''
 
 frameCount = 0
 pg.init()
@@ -22,14 +24,14 @@ pg.display.set_caption("GoL")
 
 winPrevMousePos = pg.mouse.get_pos()
 winMenuState = False
-winMenuPos = (0,0)
+winMenuPos = (0, 0)
 
 CamX = 0
 CamY = 0
-CamW = 32
-CamH = 32
+CamW = 64
+CamH = 64
 
-CellWH = 16
+CellWH = 8
 CellClr = CellClrDef = (255,255,255)
 BgClr = BgClrDef = (0,0,0)
 
@@ -71,8 +73,8 @@ def aparecium(world):
     #View = np.zeros((CamW,CamH))
     
     global CamX, CamY
-    CamX = util.clamp(CamX, 0, world.shape[0] - CamW)
-    CamY = util.clamp(CamY, 0, world.shape[1] - CamH)
+    CamX = mandragore.clamp(CamX, 0, world.shape[0] - CamW)
+    CamY = mandragore.clamp(CamY, 0, world.shape[1] - CamH)
     #print(CamX,CamY)
     View = np.array(world[floor(CamY):floor(CamY)+CamH,floor(CamX):floor(CamX)+CamW])
     win.fill(BgClr)
@@ -122,7 +124,7 @@ Winrun = True
 GoLPhase = "simu"
 while Winrun:
     frameCount = frameCount + 1
-    pg.time.delay(10) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
+    pg.time.delay(800) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
     if pg.event.get(pg.QUIT):
         Winrun = False
 
@@ -153,8 +155,8 @@ while Winrun:
             BgClr = CellClrDef if BgClr == BgClrDef else BgClrDef
             CellClr = BgClrDef if CellClr == CellClrDef else CellClrDef
 
-    #CamX = util.clamp(CamX, 0, World.shape[1])
-    #CamY = util.clamp(CamY, 0, World.shape[0])
+    #CamX = mandragore.clamp(CamX, 0, World.shape[1])
+    #CamY = mandragore.clamp(CamY, 0, World.shape[0])
     #print(CamX,CamY)
 
 
