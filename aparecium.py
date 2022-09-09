@@ -7,49 +7,59 @@ import mandragore
 
 '''réorganisation'''
 
+
 class Win:
     def __init__(self):
         self.window_caracteristique = {
             'title': "John Conway's Game of Life",
-            'defintion': 64,
-            'length side': 500,
-            'border':4,
+            'definition': 2**1,
+            'length side': 2**10,
+            'border': 4,
 
         }
-        self.win = pg.display.set_mode((700, 700))
+        self.window_caracteristique['size of cells'] = int(self.window_caracteristique['length side'] /
+                                                           self.window_caracteristique['definition'])
+
+        self.win = None
+        self.winPrevMousePos = None
         self.CamX = 0
         self.CamY = 0
-        self.winPrevMousePos = pg.mouse.get_pos()
         self.CellClr = (255, 255, 255)
         self.BgClr = (0, 0, 0)
-        self.CamW = 64
-        self.CamH = 64
-        pg.display.set_icon(pygame.image.load('textures/logo.png'))
-        pg.display.set_caption(self.window_caracteristique['title'])
+
         return
 
     def show(self):
         self.win = pg.display.set_mode((self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
                                         self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+        self.winPrevMousePos = pg.mouse.get_pos()
+        pg.display.set_icon(pygame.image.load('textures/logo.png'))
+        pg.display.set_caption(self.window_caracteristique['title'])
+
         return
 
     def log(self):
-        print()
+        print(self.win)
 
-    def aparecium(self, world):
+    def aparecium(self, world=np.array([[1, 0], [1, 0]])):
         '''
         afiche un array dans la fenaitre pygame
         :param world: l'array a aficher dans la fenetre pygame
         '''
-        global CamX, CamY
-        CamX = mandragore.clamp(CamX, 0, world.shape[0] - CamW)
-        CamY = mandragore.clamp(CamY, 0, world.shape[1] - CamH)
+
+        self.CamX = mandragore.clamp(self.CamX, 0, world.shape[0] - self.window_caracteristique['definition'])
+        self.CamY = mandragore.clamp(self.CamY, 0, world.shape[1] - self.window_caracteristique['definition'])
         # print(CamX,CamY)
-        View = np.array(world[floor(CamY):floor(CamY) + CamH, floor(CamX):floor(CamX) + CamW])
-        self.win.fill(BgClr)
-        view_cordantate = np.array(np.where(View == 1)).tolist()
+        view = np.array(world[floor(self.CamY):floor(self.CamY) + self.window_caracteristique['definition'],
+                              floor(self.CamX):floor(self.CamX) + self.window_caracteristique['definition']])
+        self.win.fill(self.BgClr)
+        view_cordantate = np.array(np.where(view == 1)).tolist()
         for cy, cx in zip(view_cordantate[0], view_cordantate[1]):
-            pg.draw.rect(self.win, self.CellClr, (cx * self.CellWH + self.GoLPosX, cy * self.CellWH + self.GoLPosY, CellWH, CellWH))
+            print("raphael")
+            pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells']+self.window_caracteristique['border'],
+                                                  cy * self.window_caracteristique['size of cells']+self.window_caracteristique['border'],
+                                                  self.window_caracteristique['size of cells'],
+                                                  self.window_caracteristique['size of cells']))
 
 
 
