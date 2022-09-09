@@ -18,4 +18,8 @@ if __name__ == '__main__':
 			program_run = False
 		pg_win.aparecium()
 		pg.display.update()
+
+
+		print(pg_win.log())
+		pg_win.log_var = ''
 	#	if pg_win.run

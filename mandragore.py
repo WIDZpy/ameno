@@ -3,6 +3,9 @@ import random as rnd
 '''
 util function
 '''
+def var_name(var, dir=locals()):
+    return [key for key, val in dir.items() if id(val) == id(var)]
+
 def lumos(w, h):
     # World = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
     World = np.array([0])
