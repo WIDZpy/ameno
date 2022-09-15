@@ -3,7 +3,8 @@ import random as rnd
 '''
 util function
 '''
-def var_name(var, dir=locals()):
+
+def var_name(var, dir):
     return [key for key, val in dir.items() if id(val) == id(var)]
 
 def lumos(w, h):
@@ -95,3 +96,7 @@ def readRLE(filename, c_shape=(50, 50)):
             coef = ''
 
     return colone[1:]
+
+
+def invertion_colorimetrique(c):
+    return ((255 - np.array(c)) % 255).tolist()
