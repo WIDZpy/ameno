@@ -95,7 +95,7 @@ class Win:
 
 class Menu_contextuele:
 	rectangle = [0, 0, 0, 0]
-	padding = 4
+	padding = 5
 	def __init__(self, menu_contenue):
 		self.section_lst = []
 		self.add_sections(menu_contenue)
@@ -162,11 +162,12 @@ class Menu_contextuele:
 
 
 		class Option:
-			padding_y = 2
+			padding_y = 1
 			border_image = padding_y
 			image_title = padding_y
 			racourci_border = padding_y
 			font = 'textures/SmallMemory.ttf'
+
 
 			def __init__(self, image, name, function, racourcie):
 				self.image = pg.image.load(image) if image != '' else ''
@@ -177,9 +178,11 @@ class Menu_contextuele:
 				self.font_object = None
 
 			def show_option(self, surface, rect, width, size, color):
+				v = 50
+				bg_color = mandragore.clamp(color[0]-color[0]*v/100 , 0, 255),mandragore.clamp(color[1]-color[1]*v/100 , 0, 255),mandragore.clamp(color[2]+color[2]*v/100 , 0, 255)
 				pos = rect[0]+rect[2], rect[1]+rect[3]
 				xpos = self.border_image
-				pg.draw.rect(surface, color, (*pos[:2], width * size, size))
+				pg.draw.rect(surface, bg_color, (*pos[:2], width * size, size))
 
 				self.image = pg.transform.scale(self.image, (size - 2 * self.padding_y, size - 2 * self.padding_y))
 				surface.blit(self.image.convert_alpha(), (pos[0] + xpos, pos[1] + self.padding_y))

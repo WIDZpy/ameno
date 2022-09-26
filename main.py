@@ -11,7 +11,7 @@ def func():
 
 if __name__ == '__main__':
 	pg_win = aparecium.Win()
-	menu = aparecium.Menu_contextuele([[['textures/actions/pause.png', 'pause', func, ''],['textures/actions/pause.png', 'pause', func, '']],[['textures/actions/pause.png', 'pause', func, ''],['textures/actions/pause.png', 'pause', func, '']]])
+	menu = aparecium.Menu_contextuele([[['textures/actions/pause.png', 'pause', func, ''], ['textures/actions/pause.png', 'pause', func, '']],[['textures/actions/pause.png', 'pause', func, ''],['textures/actions/pause.png', 'pause', func, '']]])
 	pg.init()
 	clock = pg.time.Clock()
 	frameCount = 0
