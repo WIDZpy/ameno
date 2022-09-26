@@ -5,11 +5,13 @@ from time import *
 import aparecium
 import numpy
 
+def func():
+	print('eaeae')
 
 
 if __name__ == '__main__':
 	pg_win = aparecium.Win()
-	menu = aparecium.Menu_contextuele((('pause.png', 'pause', func)))
+	menu = aparecium.Menu_contextuele([[['textures/actions/pause.png', 'pause', func, '']]])
 	pg.init()
 	clock = pg.time.Clock()
 	frameCount = 0
@@ -17,12 +19,13 @@ if __name__ == '__main__':
 	pg_win.show()
 
 	while program_run:
-		clock.tick(30)
+		clock.tick(60)
 		if pg.event.get(pg.QUIT):
 			program_run = False
 		pg_win.aparecium()
+		menu.menu_clasic_comportement_right_clic(pg_win.win, 5, 20, (100, 100, 100))
 		pg.display.update()
-
-		print(pg_win.log())
+		# menu.show_menue(pg_win.win, (0, 0), 12, 20, (140,140,140))
+		# print(pg_win.log())
 		pg_win.log_var = ''
 	#	if pg_win.run
