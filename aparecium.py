@@ -94,10 +94,11 @@ class Win:
 
 
 class Menu_contextuele:
+	rectangle = [0, 0, 0, 0]
+	padding = 4
 	def __init__(self, menu_contenue):
 		self.section_lst = []
 		self.add_sections(menu_contenue)
-		self.rectangle = [0,0,0,0]
 		self.afiche = False
 		self.menu_surface = None
 
@@ -120,19 +121,24 @@ class Menu_contextuele:
 
 	def show_menue(self, surface, pos, width, size, color):
 		pos = tuple(pos)
-		self.menu_surface = pg.Surface(surface.get_size()).convert_alpha()
+		self.menu_surface = pg.Surface(surface.get_size(),pg.SRCALPHA).convert_alpha()
 
-		self.rectangle[2] = width * size
-		self.rectangle[3] = 8
+		self.rectangle[2] = self.padding
+		self.rectangle[3] = self.padding
 		self.rectangle[0:2] = pos
+
 		for section in self.section_lst:
 			pos = [self.rectangle[0], self.rectangle[1] + self.rectangle[3]]
-			section.show_section(self.menu_surface, self.rectangle[0:2], width, size, color, section != self.section_lst[0])
+			section.show_section(self.menu_surface, self.rectangle, width, size, color, section != self.section_lst[0])
 
-		self.rectangle[3] += 1 + 8
+		self.rectangle[2] += width * size
+		self.rectangle[2] += self.padding
+		self.rectangle[3] += 1 + self.padding
 		pg.draw.rect(surface, mandragore.invertion_colorimetrique(color), self.rectangle)
+		pg.draw.rect(surface, color, (self.rectangle[0]+1,self.rectangle[1]+1,self.rectangle[2]-2,self.rectangle[3]-2))
 		surface.blit(self.menu_surface, (0, 0))
 		# self.rectangle = [0,0,0,0]
+		print(self.rectangle)
 		return
 
 	class Section:
@@ -144,22 +150,22 @@ class Menu_contextuele:
 			for option in options:
 				self.option_lst.append(self.Option(*option))
 
-		def show_section(self, surface, pos, width, size, color, line=True):
+		def show_section(self, surface, rect, width, size, color, line=True):
 			if line:
-				pos[1] += 4
-				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), pos, (pos[0] + width * size, pos[1]), 1)
-				pos[1] += 4 + 1
+				rect[3] += 4
+				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), (rect[0]+rect[2], rect[1]+rect[3]), (rect[0] + rect[2] + width * size, rect[1]+rect[3]), 1)
+				rect[3] += 4 + 1
 
 			for option in self.option_lst:
-				option.show_option(surface, pos, width, size, color)
-				pos[1] += size
-			return pos[1]
+				option.show_option(surface, rect, width, size, color)
+				rect[3] += size
+
 
 		class Option:
 			padding_y = 2
-			border_image = 8
-			image_title = 4
-			racourci_border = 4
+			border_image = padding_y
+			image_title = padding_y
+			racourci_border = padding_y
 			font = 'textures/SmallMemory.ttf'
 
 			def __init__(self, image, name, function, racourcie):
@@ -170,9 +176,11 @@ class Menu_contextuele:
 				self.racourcie = racourcie
 				self.font_object = None
 
-			def show_option(self, surface, pos, width, size, color):
-				pg.draw.rect(surface, color, (*pos, width * size, size))
-				xpos = self.border_image + self.padding_y
+			def show_option(self, surface, rect, width, size, color):
+				pos = rect[0]+rect[2], rect[1]+rect[3]
+				xpos = self.border_image
+				pg.draw.rect(surface, color, (*pos[:2], width * size, size))
+
 				self.image = pg.transform.scale(self.image, (size - 2 * self.padding_y, size - 2 * self.padding_y))
 				surface.blit(self.image.convert_alpha(), (pos[0] + xpos, pos[1] + self.padding_y))
 
@@ -185,4 +193,3 @@ class Menu_contextuele:
 				self.text_rect.center = (pos[0] + xpos + self.text_rect[2] / 2, pos[1] + size / 2)
 
 				surface.blit(self.name_surf.convert_alpha(), self.text_rect)
-				surface.convert_alpha()
