@@ -18,9 +18,7 @@ class Win:
 			'border': 4,
 
 		}
-		self.window_caracteristique['size of cells'] = int(self.window_caracteristique['length side'] /
-														   self.window_caracteristique['definition'])
-
+		self.window_caracteristique['size of cells'] = int(self.window_caracteristique['length side'] / self.window_caracteristique['definition'])
 
 		if not self.window_caracteristique['active border']:
 			self.window_caracteristique['border'] = 0
@@ -69,9 +67,8 @@ class Win:
 
 		for cy, cx in zip(view_cordantate[0], view_cordantate[1]):
 			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'],
-												  cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'],
-												  self.window_caracteristique['size of cells'],
-												  self.window_caracteristique['size of cells']))
+												cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'],
+												self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
 
 		if self.window_caracteristique['active border']:
 			self.edgeBorders(world.shape)
@@ -81,21 +78,22 @@ class Win:
 		self.log('world_shape', world_shape)
 		if self.CamX == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												  self.window_caracteristique['border'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+												self.window_caracteristique['border'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
 		if self.CamX >= world_shape[0] - self.window_caracteristique['definition']:
 			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border'], 0,
-												  self.window_caracteristique['border'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+												self.window_caracteristique['border'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
 		if self.CamY == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']))
+												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']))
 		if self.CamY >= world_shape[1] - self.window_caracteristique['definition']:
 			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border'],
-												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']))
+												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']))
 
 
 class Menu_contextuele:
 	rectangle = [0, 0, 0, 0]
 	padding = 5
+
 	def __init__(self, menu_contenue):
 		self.section_lst = []
 		self.add_sections(menu_contenue)
@@ -118,24 +116,22 @@ class Menu_contextuele:
 		elif self.afiche:
 			self.show_menue(surface, self.rectangle[0:2].copy(), width, size, color)
 
-
 	def show_menue(self, surface, pos, width, size, color):
 		pos = tuple(pos)
-		self.menu_surface = pg.Surface(surface.get_size(),pg.SRCALPHA).convert_alpha()
+		self.menu_surface = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
 
 		self.rectangle[2] = self.padding
 		self.rectangle[3] = self.padding
 		self.rectangle[0:2] = pos
 
 		for section in self.section_lst:
-			pos = [self.rectangle[0], self.rectangle[1] + self.rectangle[3]]
 			section.show_section(self.menu_surface, self.rectangle, width, size, color, section != self.section_lst[0])
 
 		self.rectangle[2] += width * size
 		self.rectangle[2] += self.padding
 		self.rectangle[3] += 1 + self.padding
 		pg.draw.rect(surface, mandragore.invertion_colorimetrique(color), self.rectangle)
-		pg.draw.rect(surface, color, (self.rectangle[0]+1,self.rectangle[1]+1,self.rectangle[2]-2,self.rectangle[3]-2))
+		pg.draw.rect(surface, color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
 		surface.blit(self.menu_surface, (0, 0))
 		# self.rectangle = [0,0,0,0]
 		return
@@ -152,13 +148,12 @@ class Menu_contextuele:
 		def show_section(self, surface, rect, width, size, color, line=True):
 			if line:
 				rect[3] += 4
-				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), (rect[0]+rect[2], rect[1]+rect[3]), (rect[0] + rect[2] + width * size, rect[1]+rect[3]), 1)
+				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), (rect[0] + rect[2], rect[1] + rect[3]), (rect[0] + rect[2] + width * size, rect[1] + rect[3]), 1)
 				rect[3] += 4 + 1
 
 			for option in self.option_lst:
 				option.show_option(surface, rect, width, size, color)
 				rect[3] += size
-
 
 		class Option:
 			padding_y = 1
@@ -167,7 +162,6 @@ class Menu_contextuele:
 			racourci_border = padding_y
 			font = 'textures/SmallMemory.ttf'
 			color_coef = 200
-
 
 			def __init__(self, image, name, function, racourcie):
 				self.image = pg.image.load(image) if image != '' else ''
@@ -183,27 +177,24 @@ class Menu_contextuele:
 				self.pos = (0, 0)
 
 				self.image_size = (0, 0)
-				self.image_pos = (0,0)
+				self.image_pos = (0, 0)
 
 				self.text_rect = None
 				self.font_object = None
 				self.name_surf = None
 
-
-
 			def show_option(self, surface, rect, width, size, color):
-
 				if rect[:2] != self.historry_pos:
-					print(rect[:2],self.historry_pos)
+					print(rect[:2], self.historry_pos)
 					self.historry_pos = rect[:2]
 
-					self.bg_color = mandragore.clamp(color[0]-color[0]*self.color_coef/100 , 0, 255), \
-									mandragore.clamp(color[1]-color[1]*self.color_coef/100 , 0, 255), \
-									mandragore.clamp(color[2]+color[2]*self.color_coef/100 , 0, 255)
+					self.bg_color = mandragore.clamp(color[0] - color[0] * self.color_coef / 100, 0, 255), \
+									mandragore.clamp(color[1] - color[1] * self.color_coef / 100, 0, 255), \
+									mandragore.clamp(color[2] + color[2] * self.color_coef / 100, 0, 255)
 
 					xpos = self.border_image
 
-					self.pos = rect[0]+rect[2], rect[1]+rect[3]
+					self.pos = rect[0] + rect[2], rect[1] + rect[3]
 					self.main_rect = (*self.pos[:2], width * size, size)
 
 					self.image_size = (size - 2 * self.padding_y, size - 2 * self.padding_y)
@@ -218,12 +209,6 @@ class Menu_contextuele:
 					self.text_rect = self.name_surf.get_rect()
 					self.text_rect.center = (self.pos[0] + xpos + self.text_rect[2] / 2, self.pos[1] + size / 2)
 
-
-
 				pg.draw.rect(surface, self.bg_color, self.main_rect)
 				surface.blit(self.image.convert_alpha(), self.image_pos)
 				surface.blit(self.name_surf.convert_alpha(), self.text_rect)
-
-
-
-
