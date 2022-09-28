@@ -1,7 +1,7 @@
 from math import *
 import numpy as np
 import pygame.image
-import maraudersMap as backend
+# import maraudersMap as backend
 import pygame as pg
 import mandragore
 
@@ -138,7 +138,6 @@ class Menu_contextuele:
 		pg.draw.rect(surface, color, (self.rectangle[0]+1,self.rectangle[1]+1,self.rectangle[2]-2,self.rectangle[3]-2))
 		surface.blit(self.menu_surface, (0, 0))
 		# self.rectangle = [0,0,0,0]
-		print(self.rectangle)
 		return
 
 	class Section:
@@ -167,32 +166,64 @@ class Menu_contextuele:
 			image_title = padding_y
 			racourci_border = padding_y
 			font = 'textures/SmallMemory.ttf'
+			color_coef = 200
 
 
 			def __init__(self, image, name, function, racourcie):
 				self.image = pg.image.load(image) if image != '' else ''
 				self.name = name
-				self.text_rect = None
 				self.function = function
 				self.racourcie = racourcie
+
+				######################################################################################################################
+
+				self.main_rect = 0, 0, 0, 0
+				self.bg_color = (0, 0, 0)
+				self.historry_pos = None
+				self.pos = (0, 0)
+
+				self.image_size = (0, 0)
+				self.image_pos = (0,0)
+
+				self.text_rect = None
 				self.font_object = None
+				self.name_surf = None
+
+
 
 			def show_option(self, surface, rect, width, size, color):
-				v = 50
-				bg_color = mandragore.clamp(color[0]-color[0]*v/100 , 0, 255),mandragore.clamp(color[1]-color[1]*v/100 , 0, 255),mandragore.clamp(color[2]+color[2]*v/100 , 0, 255)
-				pos = rect[0]+rect[2], rect[1]+rect[3]
-				xpos = self.border_image
-				pg.draw.rect(surface, bg_color, (*pos[:2], width * size, size))
 
-				self.image = pg.transform.scale(self.image, (size - 2 * self.padding_y, size - 2 * self.padding_y))
-				surface.blit(self.image.convert_alpha(), (pos[0] + xpos, pos[1] + self.padding_y))
+				if rect[:2] != self.historry_pos:
+					print(rect[:2],self.historry_pos)
+					self.historry_pos = rect[:2]
 
-				xpos += size - 2 * self.padding_y + self.image_title
+					self.bg_color = mandragore.clamp(color[0]-color[0]*self.color_coef/100 , 0, 255), \
+									mandragore.clamp(color[1]-color[1]*self.color_coef/100 , 0, 255), \
+									mandragore.clamp(color[2]+color[2]*self.color_coef/100 , 0, 255)
 
-				self.font_object = pg.font.Font(self.font, size - 2 * self.padding_y)
-				self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(color))
-				self.text_rect= self.name_surf.get_rect()
-				#self.name_surf.set_colorkey(mandragore.invertion_colorimetrique(color))
-				self.text_rect.center = (pos[0] + xpos + self.text_rect[2] / 2, pos[1] + size / 2)
+					xpos = self.border_image
 
+					self.pos = rect[0]+rect[2], rect[1]+rect[3]
+					self.main_rect = (*self.pos[:2], width * size, size)
+
+					self.image_size = (size - 2 * self.padding_y, size - 2 * self.padding_y)
+					self.image_pos = (self.pos[0] + xpos, self.pos[1] + self.padding_y)
+					self.image = pg.transform.scale(self.image, self.image_size)
+
+					self.font_object = pg.font.Font(self.font, size - 2 * self.padding_y)
+					self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(color))
+
+					xpos += size - 2 * self.padding_y + self.image_title
+
+					self.text_rect = self.name_surf.get_rect()
+					self.text_rect.center = (self.pos[0] + xpos + self.text_rect[2] / 2, self.pos[1] + size / 2)
+
+
+
+				pg.draw.rect(surface, self.bg_color, self.main_rect)
+				surface.blit(self.image.convert_alpha(), self.image_pos)
 				surface.blit(self.name_surf.convert_alpha(), self.text_rect)
+
+
+
+

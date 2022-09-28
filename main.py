@@ -20,10 +20,11 @@ if __name__ == '__main__':
 
 	while program_run:
 		clock.tick(60)
+		print(clock)
 		if pg.event.get(pg.QUIT):
 			program_run = False
 		pg_win.aparecium()
-		menu.menu_clasic_comportement_right_clic(pg_win.win, 5, 20, (50, 50, 50))
+		menu.menu_clasic_comportement_right_clic(pg_win.win, 5, 20, (30, 30, 30))
 		pg.display.update()
 		# menu.show_menue(pg_win.win, (0, 0), 12, 20, (140,140,140))
 		# print(pg_win.log())
