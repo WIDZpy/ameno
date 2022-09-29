@@ -103,13 +103,13 @@ class Menu_contextuele:
 	def add_sections(self, menu_contenue):
 		for section in menu_contenue:
 			self.section_lst.append(self.Section(section))
-
 		return
 
 	def menu_clasic_comportement_right_clic(self, surface, width, size, color):
-		if pg.mouse.get_pressed()[0]:
+		souris_event = pg.event.get(pg.MOUSEBUTTONDOWN)
+		if souris_event.button == 3:
 			self.afiche = False
-		if pg.mouse.get_pressed()[2]:
+		elif pg.mouse.get_pressed()[2]:
 			self.afiche = True
 			self.rectangle[0:2] = pg.mouse.get_pos()
 			self.show_menue(surface, self.rectangle[0:2], width, size, color)
