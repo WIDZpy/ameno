@@ -4,7 +4,6 @@ import pygame.image
 # import maraudersMap as backend
 import pygame as pg
 import mandragore
-
 '''réorganisation'''
 
 
@@ -25,7 +24,7 @@ class Win:
 
 		self.win = None
 		self.winPrevMousePos = None
-		self.CamX = 1
+		self.CamX = 0
 		self.CamY = 0
 		self.CellClr = (255, 255, 255)
 		self.BgClr = (0, 0, 0)
@@ -106,22 +105,21 @@ class Menu_contextuele:
 		return
 
 	def menu_clasic_comportement_right_clic(self, surface, width, size, color):
-		print(self.afiche)
 
 		souris_event_up = pg.event.get(pg.MOUSEBUTTONUP)
 
 		if souris_event_up:
-
 			souris_event_up = souris_event_up[0]
-			print(souris_event_up)
-			if souris_event_up.button == 3:
-				self.afiche = True
-				self.rectangle[:2] = souris_event_down.pos
 
+			if souris_event_up.button == 3 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
+				self.afiche = True
+				self.rectangle[:2] = souris_event_up.pos
+
+			elif souris_event_up.button == 1 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
+				self.afiche = False
 
 		if self.afiche:
 			self.show_menue(surface, self.rectangle[0:2].copy(), width, size, color)
-
 
 	def show_menue(self, surface, pos, width, size, color):
 
@@ -138,7 +136,7 @@ class Menu_contextuele:
 		self.rectangle[2] += width * size
 		self.rectangle[2] += self.padding
 		self.rectangle[3] += 1 + self.padding
-		pg.draw.rect(surface, mandragore.invertion_colorimetrique(color), self.rectangle)
+		pg.draw.rect(surface, (np.array((mandragore.invertion_colorimetrique(color))+np.array(color))/2).tolist(), self.rectangle)
 		pg.draw.rect(surface, color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
 		surface.blit(self.menu_surface, (0, 0))
 		# self.rectangle = [0,0,0,0]
@@ -154,7 +152,6 @@ class Menu_contextuele:
 				self.option_lst.append(self.Option(*option))
 
 		def show_section(self, surface, rect, width, size, color, line=True):
-			print('cacasection')
 			if line:
 				rect[3] += 4
 				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), (rect[0] + rect[2], rect[1] + rect[3]), (rect[0] + rect[2] + width * size, rect[1] + rect[3]), 1)
@@ -168,15 +165,15 @@ class Menu_contextuele:
 			padding_y = 1
 			border_image = padding_y
 			image_title = padding_y
-			racourci_border = padding_y
+			short_border = padding_y
 			font = 'textures/SmallMemory.ttf'
-			color_coef = 200
+			color_coef = 450
 
-			def __init__(self, image, name, function, racourcie):
+			def __init__(self, image, name, function, short):
 				self.image = pg.image.load(image) if image != '' else ''
 				self.name = name
 				self.function = function
-				self.racourcie = racourcie
+				self.short = short
 
 				######################################################################################################################
 
@@ -188,14 +185,27 @@ class Menu_contextuele:
 				self.image_size = (0, 0)
 				self.image_pos = (0, 0)
 
-				self.text_rect = None
 				self.font_object = None
+
 				self.name_surf = None
+				self.name_rect = None
+
+				self.short_surf = None
+				self.short_rect = None
+
+
+
+
+			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
+				self.image = pg.image.load(image) if image != None else self.image
+				self.name = name if name != None else self.name
+				self.short = short if short != None else self.short
+				self.function = fonction if image != None else self.function
+
 
 			def show_option(self, surface, rect, width, size, color):
 				if rect[:2] != self.historry_pos:
 					self.historry_pos = rect[:2]
-					print(rect[:2], self.historry_pos)
 
 					self.bg_color = mandragore.clamp(color[0] - color[0] * self.color_coef / 100, 0, 255), \
 									mandragore.clamp(color[1] - color[1] * self.color_coef / 100, 0, 255), \
@@ -210,14 +220,43 @@ class Menu_contextuele:
 					self.image_pos = (self.pos[0] + xpos, self.pos[1] + self.padding_y)
 					self.image = pg.transform.scale(self.image, self.image_size)
 
-					self.font_object = pg.font.Font(self.font, size - 2 * self.padding_y)
-					self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(color))
-
 					xpos += size - 2 * self.padding_y + self.image_title
 
-					self.text_rect = self.name_surf.get_rect()
-					self.text_rect.center = (self.pos[0] + xpos + self.text_rect[2] / 2, self.pos[1] + size / 2)
-				print('caca')
-				pg.draw.rect(surface, self.bg_color, self.main_rect)
+					self.font_object = pg.font.Font(self.font, size - 2 * self.padding_y)
+
+					self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(color))
+					self.name_rect = self.name_surf.get_rect()
+					self.name_rect.center = (self.pos[0] + xpos + self.name_rect[2] / 2, self.pos[1] + size / 2)
+
+					self.short_surf = self.font_object.render(self.short, True, (np.array((mandragore.invertion_colorimetrique(color))+np.array(color))/2).tolist())
+					self.short_rect = self.short_surf.get_rect()
+					self.short_rect.center = (self.pos[0] + self.main_rect[2] - self.short_rect.size[0]/2, self.pos[1] + size / 2)
+
+
+
+
+
+				hillighted = False
+				if pg.rect.Rect(self.main_rect).collidepoint(pg.mouse.get_pos()):
+					hillighted = True
+
+				bg_color = self.bg_color if hillighted else color
+
+				pg.draw.rect(surface, bg_color, self.main_rect)
+
 				surface.blit(self.image.convert_alpha(), self.image_pos)
-				surface.blit(self.name_surf.convert_alpha(), self.text_rect)
+				surface.blit(self.name_surf.convert_alpha(), self.name_rect)
+				surface.blit(self.short_surf.convert_alpha(), self.short_rect)
+
+
+
+
+
+
+
+
+
+
+
+
+
