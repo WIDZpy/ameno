@@ -20,8 +20,7 @@ if __name__ == '__main__':
 
 	while program_run:
 		clock.tick(60)
-		print(clock)
-		print(pg.event.get(pg.MOUSEBUTTONDOWN))
+
 		if pg.event.get(pg.QUIT):
 			program_run = False
 		pg_win.aparecium()

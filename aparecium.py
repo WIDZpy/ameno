@@ -106,17 +106,25 @@ class Menu_contextuele:
 		return
 
 	def menu_clasic_comportement_right_clic(self, surface, width, size, color):
-		souris_event = pg.event.get(pg.MOUSEBUTTONDOWN)
-		if souris_event.button == 3:
-			self.afiche = False
-		elif pg.mouse.get_pressed()[2]:
-			self.afiche = True
-			self.rectangle[0:2] = pg.mouse.get_pos()
-			self.show_menue(surface, self.rectangle[0:2], width, size, color)
-		elif self.afiche:
+		print(self.afiche)
+		souris_event_down = pg.event.get(pg.MOUSEBUTTONDOWN)
+		souris_event_up = pg.event.get(pg.MOUSEBUTTONUP)
+
+		if souris_event_down and souris_event_up:
+			souris_event_down = souris_event_down[0]
+			souris_event_up = souris_event_up[0]
+			print(souris_event_up)
+			if souris_event_down.button == 3 and souris_event_up.button == 3:
+				self.afiche = True
+				self.rectangle[:2] = souris_event_down.pos
+
+
+		if self.afiche:
 			self.show_menue(surface, self.rectangle[0:2].copy(), width, size, color)
 
+
 	def show_menue(self, surface, pos, width, size, color):
+
 		pos = tuple(pos)
 		self.menu_surface = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
 
@@ -146,6 +154,7 @@ class Menu_contextuele:
 				self.option_lst.append(self.Option(*option))
 
 		def show_section(self, surface, rect, width, size, color, line=True):
+			print('cacasection')
 			if line:
 				rect[3] += 4
 				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), (rect[0] + rect[2], rect[1] + rect[3]), (rect[0] + rect[2] + width * size, rect[1] + rect[3]), 1)
@@ -185,8 +194,8 @@ class Menu_contextuele:
 
 			def show_option(self, surface, rect, width, size, color):
 				if rect[:2] != self.historry_pos:
-					print(rect[:2], self.historry_pos)
 					self.historry_pos = rect[:2]
+					print(rect[:2], self.historry_pos)
 
 					self.bg_color = mandragore.clamp(color[0] - color[0] * self.color_coef / 100, 0, 255), \
 									mandragore.clamp(color[1] - color[1] * self.color_coef / 100, 0, 255), \
@@ -208,7 +217,7 @@ class Menu_contextuele:
 
 					self.text_rect = self.name_surf.get_rect()
 					self.text_rect.center = (self.pos[0] + xpos + self.text_rect[2] / 2, self.pos[1] + size / 2)
-
+				print('caca')
 				pg.draw.rect(surface, self.bg_color, self.main_rect)
 				surface.blit(self.image.convert_alpha(), self.image_pos)
 				surface.blit(self.name_surf.convert_alpha(), self.text_rect)
