@@ -107,14 +107,14 @@ class Menu_contextuele:
 
 	def menu_clasic_comportement_right_clic(self, surface, width, size, color):
 		print(self.afiche)
-		souris_event_down = pg.event.get(pg.MOUSEBUTTONDOWN)
+
 		souris_event_up = pg.event.get(pg.MOUSEBUTTONUP)
 
-		if souris_event_down and souris_event_up:
-			souris_event_down = souris_event_down[0]
+		if souris_event_up:
+
 			souris_event_up = souris_event_up[0]
 			print(souris_event_up)
-			if souris_event_down.button == 3 and souris_event_up.button == 3:
+			if souris_event_up.button == 3:
 				self.afiche = True
 				self.rectangle[:2] = souris_event_down.pos
 
