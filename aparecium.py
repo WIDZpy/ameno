@@ -106,6 +106,8 @@ class Menu_contextuele:
 
 	def menu_clasic_comportement_right_clic(self, surface, width, size, color):
 
+
+
 		souris_event_up = pg.event.get(pg.MOUSEBUTTONUP)
 
 		if souris_event_up:
@@ -118,8 +120,18 @@ class Menu_contextuele:
 			elif souris_event_up.button == 1 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
 				self.afiche = False
 
+
+
 		if self.afiche:
 			self.show_menue(surface, self.rectangle[0:2].copy(), width, size, color)
+			if pg.rect.Rect(self.rectangle).collidepoint(pg.mouse.get_pos()):
+				pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
+			else:
+				pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
+		else:
+			pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
+
+
 
 	def show_menue(self, surface, pos, width, size, color):
 
@@ -193,15 +205,11 @@ class Menu_contextuele:
 				self.short_surf = None
 				self.short_rect = None
 
-
-
-
 			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
 				self.image = pg.image.load(image) if image != None else self.image
 				self.name = name if name != None else self.name
 				self.short = short if short != None else self.short
-				self.function = fonction if image != None else self.function
-
+				self.function = fonction if fonction != None else self.function
 
 			def show_option(self, surface, rect, width, size, color):
 				if rect[:2] != self.historry_pos:
@@ -240,6 +248,16 @@ class Menu_contextuele:
 				if pg.rect.Rect(self.main_rect).collidepoint(pg.mouse.get_pos()):
 					hillighted = True
 
+				mouse = pg.event.get(pg.MOUSEBUTTONDOWN)
+				print(self.function)
+				if mouse:
+					mouse2 = mouse[0]
+					if pg.rect.Rect(self.main_rect).collidepoint(mouse2.pos):
+						self.function()
+					else:
+						pg.event.post(mouse2)
+
+
 				bg_color = self.bg_color if hillighted else color
 
 				pg.draw.rect(surface, bg_color, self.main_rect)
@@ -247,16 +265,3 @@ class Menu_contextuele:
 				surface.blit(self.image.convert_alpha(), self.image_pos)
 				surface.blit(self.name_surf.convert_alpha(), self.name_rect)
 				surface.blit(self.short_surf.convert_alpha(), self.short_rect)
-
-
-
-
-
-
-
-
-
-
-
-
-

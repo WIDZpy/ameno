@@ -6,12 +6,12 @@ import aparecium
 
 
 def func():
-	print('eaeae')
+	print('eaeaefzekfjzef,kzjek,kfk,k,ks,kg,kr,k,e,')
 
 
 if __name__ == '__main__':
 	pg_win = aparecium.Win()
-	menu = aparecium.Menu_contextuele([[['textures/buttons/prev.png', 'prev', func,''], ['textures/actions/pause.png', 'pause', func, ''], ['textures/buttons/next.png', 'next', func, '']],[['textures/actions/pause.png', 'pause', func, '']]])
+	menu = aparecium.Menu_contextuele([[['textures/buttons/prev.png', 'prev', func, ''], ['textures/actions/pause.png', 'pause', func, ''], ['textures/buttons/next.png', 'next', func, '']],[['textures/actions/pause.png', 'pause', func, '']]])
 	game_of_life = maraudersMap.Life((100,100))
 
 	pg.init()
@@ -19,13 +19,16 @@ if __name__ == '__main__':
 	frameCount = 0
 	program_run = True
 	pg_win.show()
-	game_of_life.draw_adapt('scotsp5', (12, 22), rotation=2)
-
+	# game_of_life.draw_adapt('canadagoose', (12, 22), rotation=2)
+	game_of_life.draw_random()
 	while program_run:
-		clock.tick(60)
+		clock.tick(10)
+
 
 		if pg.event.get(pg.QUIT):
 			program_run = False
+
+
 
 		if True:
 			menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
