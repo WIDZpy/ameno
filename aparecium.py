@@ -15,7 +15,7 @@ class Win:
 			'length side': 2 ** 9,
 			'active border': True,
 			'border': 4,
-
+			'pading': 3,
 		}
 		self.window_caracteristique['size of cells'] = int(self.window_caracteristique['length side'] / self.window_caracteristique['definition'])
 
@@ -72,28 +72,30 @@ class Win:
 		if self.window_caracteristique['active border']:
 			self.edgeBorders(world.shape)
 
+		return
+
 	def edgeBorders(self, world_shape):
 		# revoir le comportement des bordure dans le cas d'un désoume
 		self.log('world_shape', world_shape)
 		if self.CamX == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												self.window_caracteristique['border'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
 		if self.CamX >= world_shape[0] - self.window_caracteristique['definition']:
-			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border'], 0,
-												self.window_caracteristique['border'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'], 0,
+												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
 		if self.CamY == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']))
+												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
 		if self.CamY >= world_shape[1] - self.window_caracteristique['definition']:
-			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border'],
-												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']))
+			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'],
+												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
 
 
 class Menu_contextuele:
 	rectangle = [0, 0, 0, 0]
 	padding = 5
 
-	def __init__(self, menu_contenue):
+	def __init__(self, menu_contenue=[]):
 		self.section_lst = []
 		self.add_sections(menu_contenue)
 		self.afiche = False
@@ -249,7 +251,6 @@ class Menu_contextuele:
 					hillighted = True
 
 				mouse = pg.event.get(pg.MOUSEBUTTONDOWN)
-				print(self.function)
 				if mouse:
 					mouse2 = mouse[0]
 					if pg.rect.Rect(self.main_rect).collidepoint(mouse2.pos):

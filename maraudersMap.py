@@ -5,6 +5,7 @@ from matplotlib.pyplot import imshow, show
 
 '''les calcule'''
 
+
 class Life:
 
     def __init__(self, shape=(1, 1), max_x_y=(-1, -1)):
@@ -18,6 +19,7 @@ class Life:
         self.restricted_current_life = np.zeros(shape)
         self.bordure = [[0, 0], [0, 0]]
         self.max_x_y = max_x_y
+        self.run = False
         
         self.dictionaire = {
             'start_shape': shape,
@@ -31,9 +33,13 @@ class Life:
     
 #   ################################################## getter ##########################################################
     
-    def getlife(self):
+    def getlife(self, evolve=False):
+
+        if self.run and evolve:
+            self.evolve()
+
         return self.restricted_current_life
-    
+
     def getdepar(self):
         return
     
@@ -145,7 +151,12 @@ class Life:
         self.restricted_current_life\
             = self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
                                        self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
-    
+
+    def play(self):
+        self.run = True
+
+    def pause(self):
+        self.run = False
     
 if __name__ == '__main__':
     life = Life((0, 0))
