@@ -6,7 +6,7 @@ import aparecium
 from matplotlib.pyplot import imshow, show
 
 pg_win = aparecium.Win()
-game_of_life = maraudersMap.Life((2 ** 6, 2 ** 6))
+game_of_life = maraudersMap.Life((2 ** 8, 2 ** 8))
 menu = aparecium.Menu_contextuele()
 
 def func():
