@@ -2,7 +2,7 @@
 # import lemon_drop as tk_win
 # from matplotlib.pyplot import imshow, show
 import pygame as pg
-from GOL import maraudersMap
+from gol import maraudersMap
 import aparecium
 
 
