@@ -1,2 +1,4 @@
+from simulation.gol import main
 if __name__ == '__main__':
-	s.main
+	simu = main.GameOfLife()
+	simu.start_simu()

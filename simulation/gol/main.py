@@ -34,8 +34,8 @@ class GameOfLife:
 
 		self.edit_mod = not self.edit_mod
 
-	def main(self):
-		self.menu.add_sections([[['../textures/buttons/prev.png', 'prev', self.prev_, ''], ['textures/actions/play.png', 'play', self.play_, ''],
+	def start_simu(self):
+		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, ''], ['textures/actions/play.png', 'play', self.play_, ''],
 							['textures/buttons/next.png', 'next', self.next_, '']]])
 
 		pg.init()
