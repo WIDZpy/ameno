@@ -13,7 +13,7 @@ class Win:
 			'title': "John Conway's Game of Life",
 			'definition': 2 ** 6,
 			'length side': 2 ** 9,
-			'active border': True,
+			'active border': False,
 			'border': 4,
 			'pading': 3,
 		}
@@ -45,7 +45,7 @@ class Win:
 		self.log_var += "".join([f'{" | " if i % 2 == 0 else ": "}{info[i]}' for i in range(len(info))])
 		return self.log_var
 
-	def aparecium(self, world=np.array([[1, 0, 1], [0, 1, 0], [1, 0, 1]])):
+	def aparecium(self, world=np.array([[1, 0, 1], [1, 1, 1], [1, 0, 1]])):
 		"""
 		afiche un array dans la fenaitre pygame
 		:param world: l'array a aficher dans la fenetre pygame
@@ -64,7 +64,7 @@ class Win:
 
 		view_cordantate = np.array(np.where(view == 1)).tolist()
 
-		for cy, cx in zip(view_cordantate[0], view_cordantate[1]):
+		for cy, cx in zip(*view_cordantate):
 			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'],
 												cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'],
 												self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
@@ -195,6 +195,7 @@ class Menu_contextuele:
 				self.bg_color = (0, 0, 0)
 				self.historry_pos = None
 				self.pos = (0, 0)
+				self.color = (0,0,0)
 
 				self.image_size = (0, 0)
 				self.image_pos = (0, 0)
@@ -208,12 +209,19 @@ class Menu_contextuele:
 				self.short_rect = None
 
 			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
+				if name is not None:
+					self.name = name
+					self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(self.color))
+
+
+
 				self.image = pg.image.load(image) if image != None else self.image
-				self.name = name if name != None else self.name
 				self.short = short if short != None else self.short
 				self.function = fonction if fonction != None else self.function
 
 			def show_option(self, surface, rect, width, size, color):
+				if color != self.color:
+					self.color = color
 				if rect[:2] != self.historry_pos:
 					self.historry_pos = rect[:2]
 
