@@ -1,4 +1,6 @@
-from simulation.gol import main
+import simulation as simulation
+import simulation.gol.main
 if __name__ == '__main__':
-	simu = main.GameOfLife()
-	simu.start_simu()
+	simulation.init_gol()
+	simulation.simu.mainloop()
+

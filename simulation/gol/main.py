@@ -10,7 +10,7 @@ class GameOfLife:
 	def __init__(self):
 		self.pg_win = aparecium.Win()
 		self.game_of_life = maraudersMap.Life((2 ** 6, 2 ** 6))
-		self.menu = aparecium.Menu_contextuele()
+		self.menu = aparecium.Menu_contextuele(self.pg_win.win, 5, 20, (30, 30, 30))
 		self.edit_mod = False
 
 	def void_(self):
@@ -31,18 +31,39 @@ class GameOfLife:
 		self.game_of_life.evolve()
 
 	def edit_(self):
-
 		self.edit_mod = not self.edit_mod
 
-	def start_simu(self):
+	def key_bord_input(self):
+		pressed = pg.key.get_pressed()
+		key_event = pg.event.get(pg.KEYDOWN)
+		for key in key_event:
+			print(key)
+			if key.unicode == ' ':
+
+				if self.game_of_life.run:
+					self.pause_()
+				else:
+					self.play_()
+
+			if key.scancode == 79:
+				print(pressed[pg.K_LCTRL])
+				if pressed[pg.K_LCTRL]:
+					self.next_()
+
+
+
+
+
+	def mainloop(self):
 		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, ''], ['textures/actions/play.png', 'play', self.play_, ''],
-							['textures/buttons/next.png', 'next', self.next_, '']]])
+							['textures/buttons/next.png', 'next', self.next_, '']], [['textures/buttons/next.png', 'next', None, '']]])
+		self.menu.section_lst[1].option_lst[0].set_caracteristic(fonction=self.menu.section_lst[0].option_lst[1].update)
 
 		pg.init()
 		clock = pg.time.Clock()
 		frame_count = 0
 		program_run = True
-		self.pg_win.show()
+
 		# game_of_life.draw_adapt('canadagoose', (12, 22), rotation=2)
 		self.game_of_life.draw_random()
 		while program_run:
@@ -50,9 +71,9 @@ class GameOfLife:
 			print('\r', clock, self.game_of_life.global_shape, end='')
 			if pg.event.get(pg.QUIT):
 				program_run = False
-
+			self.key_bord_input()
 			self.pg_win.aparecium(self.game_of_life.get_life(True))
-			self.menu.menu_clasic_comportement_right_clic(self.pg_win.win, 5, 20, (30, 30, 30))
+			self.menu.menu_clasic_comportement_right_clic()
 			pg.display.update()
 			# menu.show_menue(pg_win.win, (0, 0), 12, 20, (140,140,140))
 			# print(pg_win.log())
@@ -64,4 +85,4 @@ class GameOfLife:
 
 if __name__ == '__main__':
 	GOL = GameOfLife()
-	GOL.main()
+	GOL.mainloop()

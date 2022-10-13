@@ -5,5 +5,5 @@ This is a GitHub project directed by two students in their first year of high sc
 
 ---
 
-Ceci est un projet GitHub mené par deux élèves de seconde visant à recréer le jeu de la vie (Conway's Game of Life) en python.  
+Ceci est un projet GitHub mené par deux élèves de seconde (maintenet en premier) visant à recréer le jeu de la vie (Conway's Game of Life) en python.  
 *Pourquoi ameno ? Pourquoi des noms de sortilèges de Harry Potter ? POURQUOI UN EMOJI ';)' ??! Mais pas "pourquoi des puissances de 2 partout". Je veux dire c'est un choix plutôt évident n'est-ce pas*

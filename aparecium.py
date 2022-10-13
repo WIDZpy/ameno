@@ -22,8 +22,13 @@ class Win:
 		if not self.window_caracteristique['active border']:
 			self.window_caracteristique['border'] = 0
 
-		self.win = None
-		self.winPrevMousePos = None
+		self.win = pg.display.set_mode((self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
+										self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+		self.winPrevMousePos = pg.mouse.get_pos()
+		pg.display.set_icon(pygame.image.load('textures/logo.png'))
+		pg.display.set_caption(self.window_caracteristique['title'])
+		pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
+
 		self.CamX = 0
 		self.CamY = 0
 		self.CellClr = (255, 255, 255)
@@ -31,14 +36,6 @@ class Win:
 		self.log_var = ''
 		return
 
-	def show(self):
-		self.win = pg.display.set_mode((self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
-										self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
-		self.winPrevMousePos = pg.mouse.get_pos()
-		pg.display.set_icon(pygame.image.load('textures/logo.png'))
-		pg.display.set_caption(self.window_caracteristique['title'])
-		pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
-		return
 
 	def log(self, *info):
 
@@ -90,12 +87,22 @@ class Win:
 			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'],
 												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
 
+	def moov(self, X=0, Y=0):
+		self.Camx += X
+		self.CamY += Y
+
 
 class Menu_contextuele:
 	rectangle = [0, 0, 0, 0]
 	padding = 5
 
-	def __init__(self, menu_contenue=[]):
+	def __init__(self, surface, width, size, color, menu_contenue=[]):
+
+		self.surface = surface
+		self.width = width
+		self.size = size
+		self.color = color
+
 		self.section_lst = []
 		self.add_sections(menu_contenue)
 		self.afiche = False
@@ -103,10 +110,10 @@ class Menu_contextuele:
 
 	def add_sections(self, menu_contenue):
 		for section in menu_contenue:
-			self.section_lst.append(self.Section(section))
+			self.section_lst.append(self.Section(section, self.width, self.size, self.color))
 		return
 
-	def menu_clasic_comportement_right_clic(self, surface, width, size, color):
+	def menu_clasic_comportement_right_clic(self):
 
 
 
@@ -125,7 +132,7 @@ class Menu_contextuele:
 
 
 		if self.afiche:
-			self.show_menue(surface, self.rectangle[0:2].copy(), width, size, color)
+			self.show_menue(self.surface, self.rectangle[0:2].copy(), self.width, self.size, self.color)
 			if pg.rect.Rect(self.rectangle).collidepoint(pg.mouse.get_pos()):
 				pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
 			else:
@@ -157,13 +164,13 @@ class Menu_contextuele:
 		return
 
 	class Section:
-		def __init__(self, options):
+		def __init__(self, options, width, size, color):
 			self.option_lst = []
-			self.add_options(options)
+			self.add_options(options, width, size, color)
 
-		def add_options(self, options):
+		def add_options(self, options, width, size, color):
 			for option in options:
-				self.option_lst.append(self.Option(*option))
+				self.option_lst.append(self.Option(*option, width, size, color))
 
 		def show_section(self, surface, rect, width, size, color, line=True):
 			if line:
@@ -183,7 +190,7 @@ class Menu_contextuele:
 			font = 'textures/SmallMemory.ttf'
 			color_coef = 450
 
-			def __init__(self, image, name, function, short):
+			def __init__(self, image, name, function, short, width, size, color):
 				self.image = pg.image.load(image) if image != '' else ''
 				self.name = name
 				self.function = function
@@ -195,7 +202,11 @@ class Menu_contextuele:
 				self.bg_color = (0, 0, 0)
 				self.historry_pos = None
 				self.pos = (0, 0)
-				self.color = (0,0,0)
+				self.color = color
+				self.rect = [0,0,0,0]
+				self.width = width
+				self.size =	size
+
 
 				self.image_size = (0, 0)
 				self.image_pos = (0, 0)
@@ -208,47 +219,63 @@ class Menu_contextuele:
 				self.short_surf = None
 				self.short_rect = None
 
+				pg.font.init()
+
+
 			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
-				if name is not None:
-					self.name = name
-					self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(self.color))
+
+				self.name = name if name is not None else self.name
+				self.image = pg.image.load(image) if image is not None else self.image
+				self.short = short if short is not None else self.short
+				self.function = fonction if fonction is not None else self.function
+
+				self.name = name if name is not None else self.name
+				self.name = name if name is not None else self.name
+				self.name = name if name is not None else self.name
+				self.name = name if name is not None else self.name
+
+				self.update()
 
 
 
-				self.image = pg.image.load(image) if image != None else self.image
-				self.short = short if short != None else self.short
-				self.function = fonction if fonction != None else self.function
+			def update(self):
+				self.historry_pos = self.rect[:2]
 
-			def show_option(self, surface, rect, width, size, color):
-				if color != self.color:
-					self.color = color
+				self.bg_color = mandragore.clamp(self.color[0] - self.color[0] * self.color_coef / 100, 0, 255), \
+								mandragore.clamp(self.color[1] - self.color[1] * self.color_coef / 100, 0, 255), \
+								mandragore.clamp(self.color[2] + self.color[2] * self.color_coef / 100, 0, 255)
+
+				xpos = self.border_image
+
+				self.pos = self.rect[0] + self.rect[2], self.rect[1] + self.rect[3]
+				self.main_rect = (*self.pos[:2], self.width * self.size, self.size)
+
+				self.image_size = (self.size - 2 * self.padding_y, self.size - 2 * self.padding_y)
+				self.image_pos = (self.pos[0] + xpos, self.pos[1] + self.padding_y)
+				self.image = pg.transform.scale(self.image, self.image_size)
+
+				xpos += self.size - 2 * self.padding_y + self.image_title
+				#self.font_object = pg.font.Font(self.font, self.size - 2 * self.padding_y)
+
+				self.font_object = pg.font.Font('textures/SmallMemory.ttf', 18)
+				self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(self.color))
+				self.name_rect = self.name_surf.get_rect()
+				self.name_rect.center = (self.pos[0] + xpos + self.name_rect[2] / 2, self.pos[1] + self.size / 2)
+
+				self.short_surf = self.font_object.render(self.short, True, (np.array((mandragore.invertion_colorimetrique(self.color)) + np.array(self.color)) / 2).tolist())
+				self.short_rect = self.short_surf.get_rect()
+				self.short_rect.center = (self.pos[0] + self.main_rect[2] - self.short_rect.size[0] / 2, self.pos[1] + self.size / 2)
+
+
+			def show_option(self, surface, rect,  width, size, color):
+				self.rect = rect.copy()
+
+
+
+
+
 				if rect[:2] != self.historry_pos:
-					self.historry_pos = rect[:2]
-
-					self.bg_color = mandragore.clamp(color[0] - color[0] * self.color_coef / 100, 0, 255), \
-									mandragore.clamp(color[1] - color[1] * self.color_coef / 100, 0, 255), \
-									mandragore.clamp(color[2] + color[2] * self.color_coef / 100, 0, 255)
-
-					xpos = self.border_image
-
-					self.pos = rect[0] + rect[2], rect[1] + rect[3]
-					self.main_rect = (*self.pos[:2], width * size, size)
-
-					self.image_size = (size - 2 * self.padding_y, size - 2 * self.padding_y)
-					self.image_pos = (self.pos[0] + xpos, self.pos[1] + self.padding_y)
-					self.image = pg.transform.scale(self.image, self.image_size)
-
-					xpos += size - 2 * self.padding_y + self.image_title
-
-					self.font_object = pg.font.Font(self.font, size - 2 * self.padding_y)
-
-					self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(color))
-					self.name_rect = self.name_surf.get_rect()
-					self.name_rect.center = (self.pos[0] + xpos + self.name_rect[2] / 2, self.pos[1] + size / 2)
-
-					self.short_surf = self.font_object.render(self.short, True, (np.array((mandragore.invertion_colorimetrique(color))+np.array(color))/2).tolist())
-					self.short_rect = self.short_surf.get_rect()
-					self.short_rect.center = (self.pos[0] + self.main_rect[2] - self.short_rect.size[0]/2, self.pos[1] + size / 2)
+					self.update()
 
 
 
