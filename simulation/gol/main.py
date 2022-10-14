@@ -9,7 +9,7 @@ import aparecium
 class GameOfLife:
 	def __init__(self):
 		self.pg_win = aparecium.Win()
-		self.game_of_life = maraudersMap.Life((2 ** 6, 2 ** 6))
+		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7))
 		self.menu = aparecium.Menu_contextuele(self.pg_win.win, 5, 20, (30, 30, 30))
 		self.edit_mod = False
 
@@ -37,35 +37,56 @@ class GameOfLife:
 		pressed = pg.key.get_pressed()
 		key_event = pg.event.get(pg.KEYDOWN)
 		for key in key_event:
-			print(key)
+			# print(key)
 			if key.unicode == ' ':
-
+				print("space")
 				if self.game_of_life.run:
 					self.pause_()
 				else:
 					self.play_()
 
-			if key.scancode == 79:
-				print(pressed[pg.K_LCTRL])
+			if key.scancode == 79:  # fleche de droite
 				if pressed[pg.K_LCTRL]:
 					self.next_()
+					print("ctl + →")
 
+				if pressed[pg.K_LALT]:
+					self.pg_win.moov(1)
+					print("alt + →")
+			if key.scancode == 80:
+				if pressed[pg.K_LCTRL]:
+					self.prev_()
+				if pressed[pg.K_LALT]:
+					self.pg_win.moov(-1)
+					print("alt + ←")
 
+			if key.scancode == 82:
+				if pressed[pg.K_LCTRL]:
+					pass
+				if pressed[pg.K_LALT]:
+					self.pg_win.moov(0, -1)
+					print("alt + ↑")
 
-
+			if key.scancode == 81:
+				if pressed[pg.K_LCTRL]:
+					pass
+				if pressed[pg.K_LALT]:
+					self.pg_win.moov(0, 1)
+					print("alt + ↓")
 
 	def mainloop(self):
-		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, ''], ['textures/actions/play.png', 'play', self.play_, ''],
-							['textures/buttons/next.png', 'next', self.next_, '']], [['textures/buttons/next.png', 'next', None, '']]])
-		self.menu.section_lst[1].option_lst[0].set_caracteristic(fonction=self.menu.section_lst[0].option_lst[1].update)
+		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, ''],
+								 ['textures/actions/play.png', 'play', self.play_, ''],
+								 ['textures/buttons/next.png', 'next', self.next_, '']]])
+
 
 		pg.init()
 		clock = pg.time.Clock()
 		frame_count = 0
 		program_run = True
 
-		# game_of_life.draw_adapt('canadagoose', (12, 22), rotation=2)
-		self.game_of_life.draw_random()
+		self.game_of_life.draw_adapt('canadagoose', (12, 22), rotation=2)
+		# self.game_of_life.draw_random()
 		while program_run:
 			clock.tick(60)
 			print('\r', clock, self.game_of_life.global_shape, end='')

@@ -133,16 +133,16 @@ class Life:
 
         self.bordure = (np.array(self.bordure)+1).tolist()  # rajoute 1 a toute la valeur de self.bordure
         
-        if evolve[0].sum() == 0 or self.max_x_y[0] == self.global_shape[0]:      # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+        if evolve[0].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:      # test s'il y a une ou plusieurs cellules en vie sur la première ligne
             evolve = evolve[1:]       # retourne l'array substituer de la première ligne
             self.bordure[0][0] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[-1].sum() == 0 or self.max_x_y[0] == self.global_shape[0]:     # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+        if evolve[-1].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:     # test s'il y a une ou plusieurs cellules en vie sur la première ligne
             evolve = evolve[:-1]      # retourne l'array substituer de la première ligne
             self.bordure[0][1] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[:, 0].sum() == 0 or self.max_x_y[1] == self.global_shape[1]:   # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+        if evolve[:, 0].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:   # test s'il y a une ou plusieurs cellules en vie sur la première ligne
             evolve = evolve[:, 1:]    # retourne l'array substituer de la première ligne
             self.bordure[1][0] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[:, -1].sum() == 0 or self.max_x_y[1] == self.global_shape[1]:  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
+        if evolve[:, -1].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
             evolve = evolve[:, :-1]   # retourne l'array substituer de derni ère colonne
             self.bordure[1][1] -= 1   # soustrait 1 a la valeur de la dernière colonne
             

@@ -88,7 +88,7 @@ class Win:
 												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
 
 	def moov(self, X=0, Y=0):
-		self.Camx += X
+		self.CamX += X
 		self.CamY += Y
 
 
