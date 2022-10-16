@@ -2,6 +2,7 @@ from math import *
 import numpy as np
 import pygame.image
 # import maraudersMap as backend
+
 import pygame as pg
 import mandragore
 '''réorganisation'''
@@ -11,31 +12,35 @@ class Win:
 	def __init__(self):
 		self.window_caracteristique = {
 			'title': "John Conway's Game of Life",
-			'definition': 2 ** 6,
-			'length side': 2 ** 9,
+			'length side': (2 ** 9, 2 ** 9),
+			'size of cells': 2 ** 9 // 2 ** 6,
 			'active border': False,
 			'border': 4,
 			'pading': 3,
+
 		}
-		self.window_caracteristique['size of cells'] = int(self.window_caracteristique['length side'] / self.window_caracteristique['definition'])
+
 
 		if not self.window_caracteristique['active border']:
 			self.window_caracteristique['border'] = 0
 
-		self.win = pg.display.set_mode((self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
-										self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+		self.win = pg.display.set_mode((self.window_caracteristique['length side'][0] + self.window_caracteristique['border'] * 2,
+										self.window_caracteristique['length side'][1] + self.window_caracteristique['border'] * 2))
 		self.winPrevMousePos = pg.mouse.get_pos()
 		pg.display.set_icon(pygame.image.load('textures/logo.png'))
 		pg.display.set_caption(self.window_caracteristique['title'])
 		pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
-		self.CamX = 0
-		self.CamY = 0
+		self.camX = 0
+		self.camY = 0
 		self.CellClr = (255, 255, 255)
 		self.BgClr = (0, 0, 0)
 		self.log_var = ''
+		self.decalage = 0, 0
 		return
 
+	def set_decalage(self, x, y):
+		self.decalage = x, y
 
 	def log(self, *info):
 
@@ -47,23 +52,27 @@ class Win:
 		afiche un array dans la fenaitre pygame
 		:param world: l'array a aficher dans la fenetre pygame
 		"""
+		world_size = world.shape
 		self.win.fill(self.BgClr)
 
-		self.log('pre camx', self.CamX, 'pre camy', self.CamY, 'pre world shape', world.shape)
+		self.log('camx', self.camX, 'camy', self.camY, '//',self.camX//self.window_caracteristique['size of cells'], 'ceil', ceil(self.window_caracteristique['length side'][0]/self.window_caracteristique['size of cells']))
 
-		self.CamX = mandragore.clamp(self.CamX, 0, mandragore.clamp(world.shape[0] - self.window_caracteristique['definition'], 0, self.window_caracteristique['definition']))
-		self.CamY = mandragore.clamp(self.CamY, 0, mandragore.clamp(world.shape[1] - self.window_caracteristique['definition'], 0, self.window_caracteristique['definition']))
+		dec_Y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
+		dec_X = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
 
-		self.log('camx', self.CamX, 'camy', self.CamY)
-
-		view = np.array(world[floor(self.CamY):floor(self.CamY) + self.window_caracteristique['definition'],
-						floor(self.CamX):floor(self.CamX) + self.window_caracteristique['definition']])
+		view = world[mandragore.clamp(dec_Y//self.window_caracteristique['size of cells'], 0, world_size[0]):
+					 mandragore.clamp(ceil(dec_Y/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][1]/self.window_caracteristique['size of cells']),0,world_size[0]),
+			   		 mandragore.clamp(dec_X//self.window_caracteristique['size of cells'], 0, world_size[1]):
+					 mandragore.clamp(ceil(dec_X/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][0]/self.window_caracteristique['size of cells']),0,world_size[1])]
 
 		view_cordantate = np.array(np.where(view == 1)).tolist()
 
+		decalage_x = dec_X % self.window_caracteristique['size of cells'] if dec_X > 0 else dec_X
+		decalage_y = dec_Y % self.window_caracteristique['size of cells'] if dec_Y > 0 else dec_Y
+
 		for cy, cx in zip(*view_cordantate):
-			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'],
-												cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'],
+			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_x,
+												cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_y,
 												self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
 
 		if self.window_caracteristique['active border']:
@@ -73,24 +82,25 @@ class Win:
 
 	def edgeBorders(self, world_shape):
 		# revoir le comportement des bordure dans le cas d'un désoume
-		self.log('world_shape', world_shape)
-		if self.CamX == 0:
+		if self.camX == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
 												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
-		if self.CamX >= world_shape[0] - self.window_caracteristique['definition']:
+		if self.camX >= world_shape[0] - self.window_caracteristique['definition']:
 			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'], 0,
 												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
-		if self.CamY == 0:
+		if self.camY == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
 												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
-		if self.CamY >= world_shape[1] - self.window_caracteristique['definition']:
+		if self.camY >= world_shape[1] - self.window_caracteristique['definition']:
 			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'],
 												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
 
 	def moov(self, X=0, Y=0):
-		self.CamX += X
-		self.CamY += Y
+		self.camX += X
+		self.camY += Y
 
+	def zoom(self, z):
+		return
 
 class Menu_contextuele:
 	rectangle = [0, 0, 0, 0]

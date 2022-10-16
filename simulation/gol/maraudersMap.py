@@ -38,7 +38,7 @@ class Life:
         if self.run and evolve:
             self.evolve()
 
-        return self.restricted_current_life
+        return self.global_current_life
 
     def get_start_array(self):
         return
@@ -50,6 +50,7 @@ class Life:
 #   ################################################## edit ###########################################################
     
     def point_and_clic(self, cord):
+        cord = cord[1], cord[0]
         v = self.restricted_current_life[cord]
         self.restricted_current_life[cord] = self.global_current_life[self.bordure[0][0]+cord[0],
                                                                       self.bordure[1][0]+cord[1]] = 0 if v else 1
@@ -104,7 +105,7 @@ class Life:
         self.restricted_current_life = np.pad(self.restricted_current_life, padding)
 
         self.restricted_shape = self.restricted_current_life.shape
-        print(self.restricted_shape)
+
         self.global_current_life = np.zeros(self.restricted_shape)
         self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
                                  self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]] =\
@@ -119,8 +120,38 @@ class Life:
                                      self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
 
 # ################################################# running #########################################################
-    
-    def evolve(self, repet=1):
+
+    def evolve(self):
+
+        self.count += 1
+
+        sets = np.pad(self.global_current_life, np.ones((2, 2)).astype(int)*2)
+        # sets = self.global_current_life
+        evolve = np.pad(np.zeros(self.global_shape).astype(int), np.ones((2, 2)).astype(int))
+        evolve[:, :] = (sets[:-2, :-2] + sets[:-2, 1:-1] + sets[:-2, 2:] + sets[1:-1, :-2] +
+                        sets[1:-1, 2:] + sets[2:, :-2] + sets[2:, 1:-1] + sets[2:, 2:])
+        evolve = np.logical_or(evolve == 3, np.logical_and(sets[1:-1, 1:-1] == 1, evolve == 2)).astype(int)
+
+        self.bordure = (np.array(self.bordure)+1).tolist()  # rajoute 1 a toute la valeur de self.bordure
+
+        if evolve[0].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:      # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+            evolve = evolve[1:]       # retourne l'array substituer de la première ligne
+            self.bordure[0][0] -= 1   # soustrait 1 a la valeur de la première ligne
+        if evolve[-1].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:     # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+            evolve = evolve[:-1]      # retourne l'array substituer de la première ligne
+            self.bordure[0][1] -= 1   # soustrait 1 a la valeur de la première ligne
+        if evolve[:, 0].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:   # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+            evolve = evolve[:, 1:]    # retourne l'array substituer de la première ligne
+            self.bordure[1][0] -= 1   # soustrait 1 a la valeur de la première ligne
+        if evolve[:, -1].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
+            evolve = evolve[:, :-1]   # retourne l'array substituer de derni ère colonne
+            self.bordure[1][1] -= 1   # soustrait 1 a la valeur de la dernière colonne
+
+        self.global_current_life = evolve.astype(int)
+        # print(evolve, "\n", self.bordure, "\n", self.restricted_shape)
+        self.global_shape = self.global_current_life.shape
+
+    def evolve_V1(self):
         
         self.count += 1
         
@@ -158,7 +189,8 @@ class Life:
 
     def pause(self):
         self.run = False
-    
+
+
 if __name__ == '__main__':
     life = Life((0, 0))
     # life.starte_adapt('canadagoose', (20, 0))
