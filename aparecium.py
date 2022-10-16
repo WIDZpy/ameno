@@ -55,10 +55,11 @@ class Win:
 		world_size = world.shape
 		self.win.fill(self.BgClr)
 
-		self.log('camx', self.camX, 'camy', self.camY, '//',self.camX//self.window_caracteristique['size of cells'], 'ceil', ceil(self.window_caracteristique['length side'][0]/self.window_caracteristique['size of cells']))
 
 		dec_Y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
 		dec_X = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
+
+		self.log('size of cell', self.window_caracteristique['size of cells'], dec_X, dec_Y)
 
 		view = world[mandragore.clamp(dec_Y//self.window_caracteristique['size of cells'], 0, world_size[0]):
 					 mandragore.clamp(ceil(dec_Y/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][1]/self.window_caracteristique['size of cells']),0,world_size[0]),
@@ -100,7 +101,7 @@ class Win:
 		self.camY += Y
 
 	def zoom(self, z):
-		return
+		self.window_caracteristique['size of cells'] = mandragore.clamp(self.window_caracteristique['size of cells'] + z, 1)
 
 class Menu_contextuele:
 	rectangle = [0, 0, 0, 0]

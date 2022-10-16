@@ -38,7 +38,7 @@ class GameOfLife:
 		speed = 5
 		pressed = pg.key.get_pressed()
 		key_event = pg.event.get(pg.KEYDOWN)
-		self.pg_win.log("touche", self.touche)
+		# self.pg_win.log("touche", self.touche)
 
 		if len(key_event) == 0 and not (pressed[pg.K_LCTRL] or pressed[pg.K_LALT]):
 
@@ -93,7 +93,7 @@ class GameOfLife:
 
 			if key.scancode == 81:
 				if pressed[pg.K_LCTRL]:
-					self.pg_win.zoom(10)
+					self.pg_win.zoom(5)
 					self.touche = "ctl + ↓"
 				if pressed[pg.K_LALT]:
 					self.pg_win.moov(0, 10)
@@ -114,14 +114,15 @@ class GameOfLife:
 		# self.game_of_life.draw_adapt('canadagoose', (12, 22), rotation=0)
 		self.game_of_life.draw_random()
 		while program_run:
-			self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
 			self.pg_win.log("boredure", self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
 			clock.tick(60)
 
 			if pg.event.get(pg.QUIT):
 				program_run = False
-			# self.key_bord_input()
-			self.pg_win.aparecium(self.game_of_life.get_life(True))
+			self.key_bord_input()
+			arr = self.game_of_life.get_life(True)
+			self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
+			self.pg_win.aparecium(arr)
 
 			self.menu.menu_clasic_comportement_right_clic()
 			pg.display.update()
