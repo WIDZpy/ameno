@@ -19,12 +19,14 @@ def lumos(w, h):
     return World
 
 
-def clamp(var, low, high):
+def clamp(var, low=None, high=None):
     out = var
-    if var > high:
-        out = high
-    elif var < low:
-        out = low
+    if high is not None:
+        if var > high:
+            out = high
+    if low is not None:
+        if var < low:
+            out = low
     return out
 
 
