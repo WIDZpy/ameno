@@ -25,7 +25,7 @@ class Win:
 			self.window_caracteristique['border'] = 0
 
 		self.win = pg.display.set_mode((self.window_caracteristique['length side'][0] + self.window_caracteristique['border'] * 2,
-										self.window_caracteristique['length side'][1] + self.window_caracteristique['border'] * 2))
+										self.window_caracteristique['length side'][1] + self.window_caracteristique['border'] * 2), pg.RESIZABLE)
 		self.winPrevMousePos = pg.mouse.get_pos()
 		pg.display.set_icon(pygame.image.load('textures/logo.png'))
 		pg.display.set_caption(self.window_caracteristique['title'])
@@ -58,8 +58,6 @@ class Win:
 
 		dec_Y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
 		dec_X = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
-
-		self.log('size of cell', self.window_caracteristique['size of cells'], dec_X, dec_Y)
 
 		view = world[mandragore.clamp(dec_Y//self.window_caracteristique['size of cells'], 0, world_size[0]):
 					 mandragore.clamp(ceil(dec_Y/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][1]/self.window_caracteristique['size of cells']),0,world_size[0]),
@@ -285,7 +283,7 @@ class Menu_contextuele:
 
 
 
-				if rect[:2] != self.historry_pos:
+				if rect[:2] != sexlf.historry_pos:
 					self.update()
 
 
