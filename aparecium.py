@@ -52,27 +52,30 @@ class Win:
 		afiche un array dans la fenaitre pygame
 		:param world: l'array a aficher dans la fenetre pygame
 		"""
+		world_size = world.shape
 		self.win.fill(self.BgClr)
 
-		# faire une variable qui stoque les coordonéa en px de l'origine de larray par raport a l'origine de la surface
-		array_pos = -1 * self.decalage[0] * self.window_caracteristique['size of cells'],\
-					-1 * self.decalage[1] * self.window_caracteristique['size of cells']
 
+		dec_Y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
+		dec_X = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
 
+		view = world[mandragore.clamp(dec_Y//self.window_caracteristique['size of cells'], 0, world_size[0]):
+					 mandragore.clamp(ceil(dec_Y/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][1]/self.window_caracteristique['size of cells']),0,world_size[0]),
+			   		 mandragore.clamp(dec_X//self.window_caracteristique['size of cells'], 0, world_size[1]):
+					 mandragore.clamp(ceil(dec_X/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][0]/self.window_caracteristique['size of cells']),0,world_size[1])]
 
-		view_cordantate = np.array(np.where(world == 1)).tolist()
+		view_cordantate = np.array(np.where(view == 1)).tolist()
 
-
+		decalage_x = dec_X % self.window_caracteristique['size of cells'] if dec_X > 0 else dec_X
+		decalage_y = dec_Y % self.window_caracteristique['size of cells'] if dec_Y > 0 else dec_Y
 
 		for cy, cx in zip(*view_cordantate):
-			pg.draw.rect(self.win, self.CellClr, ((cx + self.camX) * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] + array_pos[0],
-						 						  (cy + self.camY) * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] + array_pos[1],
-												  self.window_caracteristique['size of cells'],
-												  self.window_caracteristique['size of cells']))
-
+			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_x,
+												cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_y,
+												self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
 
 		if self.window_caracteristique['active border']:
-				self.edgeBorders(world.shape)
+			self.edgeBorders(world.shape)
 
 		return
 
@@ -280,7 +283,7 @@ class Menu_contextuele:
 
 
 
-				if rect[:2] != self.historry_pos:
+				if rect[:2] != sexlf.historry_pos:
 					self.update()
 
 
