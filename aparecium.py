@@ -5,6 +5,7 @@ import pygame.image
 
 import pygame as pg
 import mandragore
+
 '''réorganisation'''
 
 
@@ -19,7 +20,6 @@ class Win:
 			'pading': 3,
 
 		}
-
 
 		if not self.window_caracteristique['active border']:
 			self.window_caracteristique['border'] = 0
@@ -49,30 +49,34 @@ class Win:
 
 	def aparecium(self, world=np.array([[1, 0, 1], [1, 1, 1], [1, 0, 1]])):
 		"""
-		afiche un array dans la fenaitre pygame
-		:param world: l'array a aficher dans la fenetre pygame
+		fiche un array dans la fenêtre pygame
+		:param world: l'array a afficher dans la fenêtre pygame
 		"""
+
+		#
 		world_size = world.shape
 		self.win.fill(self.BgClr)
 
+		dec_y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
+		dec_x = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
 
-		dec_Y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
-		dec_X = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
-
-		view = world[mandragore.clamp(dec_Y//self.window_caracteristique['size of cells'], 0, world_size[0]):
-					 mandragore.clamp(ceil(dec_Y/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][1]/self.window_caracteristique['size of cells']),0,world_size[0]),
-			   		 mandragore.clamp(dec_X//self.window_caracteristique['size of cells'], 0, world_size[1]):
-					 mandragore.clamp(ceil(dec_X/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][0]/self.window_caracteristique['size of cells']),0,world_size[1])]
+		view = world[mandragore.clamp(dec_y // self.window_caracteristique['size of cells'], 0, world_size[0]):
+					 mandragore.clamp(ceil(dec_y / self.window_caracteristique['size of cells']) + ceil(self.window_caracteristique['length side'][1] / self.window_caracteristique['size of cells']),
+									  0, world_size[0]),
+			   mandragore.clamp(dec_x // self.window_caracteristique['size of cells'], 0, world_size[1]):
+			   mandragore.clamp(ceil(dec_x / self.window_caracteristique['size of cells']) + ceil(self.window_caracteristique['length side'][0] / self.window_caracteristique['size of cells']), 0,
+								world_size[1])]
 
 		view_cordantate = np.array(np.where(view == 1)).tolist()
 
-		decalage_x = dec_X % self.window_caracteristique['size of cells'] if dec_X > 0 else dec_X
-		decalage_y = dec_Y % self.window_caracteristique['size of cells'] if dec_Y > 0 else dec_Y
+		decalage_x = dec_x % self.window_caracteristique['size of cells'] if dec_x > 0 else dec_x
+		decalage_y = dec_y % self.window_caracteristique['size of cells'] if dec_y > 0 else dec_y
 
 		for cy, cx in zip(*view_cordantate):
+
 			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_x,
-												cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_y,
-												self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
+												  cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_y,
+												  self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
 
 		if self.window_caracteristique['active border']:
 			self.edgeBorders(world.shape)
@@ -83,25 +87,30 @@ class Win:
 		# revoir le comportement des bordure dans le cas d'un désoume
 		if self.camX == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+												  self.window_caracteristique['border'] - self.window_caracteristique['pading'],
+												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
 		if self.camX >= world_shape[0] - self.window_caracteristique['definition']:
-			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'], 0,
-												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border'] + self.window_caracteristique['pading'], 0,
+												  self.window_caracteristique['border'] - self.window_caracteristique['pading'],
+												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
 		if self.camY == 0:
 			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
+												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
+												  self.window_caracteristique['border'] - self.window_caracteristique['pading']))
 		if self.camY >= world_shape[1] - self.window_caracteristique['definition']:
-			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'],
-												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
+			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border'] + self.window_caracteristique['pading'],
+												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
+												  self.window_caracteristique['border'] - self.window_caracteristique['pading']))
 
-	def moov(self, X=0, Y=0):
-		self.camX += X
-		self.camY += Y
+	def moov(self, x=0, y=0):
+		self.camX += x
+		self.camY += y
 
 	def zoom(self, z):
 		self.window_caracteristique['size of cells'] = mandragore.clamp(self.window_caracteristique['size of cells'] + z, 1)
 
-class Menu_contextuele:
+
+class MenuContextuele:
 	rectangle = [0, 0, 0, 0]
 	padding = 5
 
@@ -124,8 +133,6 @@ class Menu_contextuele:
 
 	def menu_clasic_comportement_right_clic(self):
 
-
-
 		souris_event_up = pg.event.get(pg.MOUSEBUTTONUP)
 
 		if souris_event_up:
@@ -138,8 +145,6 @@ class Menu_contextuele:
 			elif souris_event_up.button == 1 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
 				self.afiche = False
 
-
-
 		if self.afiche:
 			self.show_menue(self.surface, self.rectangle[0:2].copy(), self.width, self.size, self.color)
 			if pg.rect.Rect(self.rectangle).collidepoint(pg.mouse.get_pos()):
@@ -148,8 +153,6 @@ class Menu_contextuele:
 				pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 		else:
 			pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
-
-
 
 	def show_menue(self, surface, pos, width, size, color):
 
@@ -166,7 +169,7 @@ class Menu_contextuele:
 		self.rectangle[2] += width * size
 		self.rectangle[2] += self.padding
 		self.rectangle[3] += 1 + self.padding
-		pg.draw.rect(surface, (np.array((mandragore.invertion_colorimetrique(color))+np.array(color))/2).tolist(), self.rectangle)
+		pg.draw.rect(surface, (np.array((mandragore.invertion_colorimetrique(color)) + np.array(color)) / 2).tolist(), self.rectangle)
 		pg.draw.rect(surface, color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
 		surface.blit(self.menu_surface, (0, 0))
 		# self.rectangle = [0,0,0,0]
@@ -212,10 +215,9 @@ class Menu_contextuele:
 				self.historry_pos = None
 				self.pos = (0, 0)
 				self.color = color
-				self.rect = [0,0,0,0]
+				self.rect = [0, 0, 0, 0]
 				self.width = width
-				self.size =	size
-
+				self.size = size
 
 				self.image_size = (0, 0)
 				self.image_pos = (0, 0)
@@ -230,7 +232,6 @@ class Menu_contextuele:
 
 				pg.font.init()
 
-
 			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
 
 				self.name = name if name is not None else self.name
@@ -244,8 +245,6 @@ class Menu_contextuele:
 				self.name = name if name is not None else self.name
 
 				self.update()
-
-
 
 			def update(self):
 				self.historry_pos = self.rect[:2]
@@ -264,7 +263,7 @@ class Menu_contextuele:
 				self.image = pg.transform.scale(self.image, self.image_size)
 
 				xpos += self.size - 2 * self.padding_y + self.image_title
-				#self.font_object = pg.font.Font(self.font, self.size - 2 * self.padding_y)
+				# self.font_object = pg.font.Font(self.font, self.size - 2 * self.padding_y)
 
 				self.font_object = pg.font.Font('textures/SmallMemory.ttf', 18)
 				self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(self.color))
@@ -275,20 +274,11 @@ class Menu_contextuele:
 				self.short_rect = self.short_surf.get_rect()
 				self.short_rect.center = (self.pos[0] + self.main_rect[2] - self.short_rect.size[0] / 2, self.pos[1] + self.size / 2)
 
-
-			def show_option(self, surface, rect,  width, size, color):
+			def show_option(self, surface, rect, width, size, color):
 				self.rect = rect.copy()
-
-
-
-
 
 				if rect[:2] != sexlf.historry_pos:
 					self.update()
-
-
-
-
 
 				hillighted = False
 				if pg.rect.Rect(self.main_rect).collidepoint(pg.mouse.get_pos()):
@@ -301,7 +291,6 @@ class Menu_contextuele:
 						self.function()
 					else:
 						pg.event.post(mouse2)
-
 
 				bg_color = self.bg_color if hillighted else color
 

@@ -10,7 +10,7 @@ class GameOfLife:
 	def __init__(self):
 		self.pg_win = aparecium.Win()
 		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7))
-		self.menu = aparecium.Menu_contextuele(self.pg_win.win, 5, 20, (30, 30, 30))
+		self.menu = aparecium.MenuContextuele(self.pg_win.win, 5, 20, (30, 30, 30))
 		self.edit_mod = False
 		self.touche = None
 
