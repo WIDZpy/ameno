@@ -85,23 +85,7 @@ class Win:
 
 	def edgeBorders(self, world_shape):
 		# revoir le comportement des bordure dans le cas d'un désoume
-		if self.camX == 0:
-			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												  self.window_caracteristique['border'] - self.window_caracteristique['pading'],
-												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
-		if self.camX >= world_shape[0] - self.window_caracteristique['definition']:
-			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border'] + self.window_caracteristique['pading'], 0,
-												  self.window_caracteristique['border'] - self.window_caracteristique['pading'],
-												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
-		if self.camY == 0:
-			pg.draw.rect(self.win, self.CellClr, (0, 0,
-												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
-												  self.window_caracteristique['border'] - self.window_caracteristique['pading']))
-		if self.camY >= world_shape[1] - self.window_caracteristique['definition']:
-			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border'] + self.window_caracteristique['pading'],
-												  self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2,
-												  self.window_caracteristique['border'] - self.window_caracteristique['pading']))
-
+		return
 	def moov(self, x=0, y=0):
 		self.camX += x
 		self.camY += y
