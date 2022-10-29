@@ -1,10 +1,48 @@
 import numpy as np
+import random as rnd
+'''
+util function
+'''
+
+
+def var_name(var, dir):
+    return [key for key, val in dir.items() if id(val) == id(var)]
+
+
+def lumos(w, h):
+    # World = np.array([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
+    World = np.array([0])
+    World.resize(w, h)
+    for x in range(w):
+        for y in range(h):
+            World[x][y] = rnd.randint(0, 1)
+    return World
+
+
+def clamp(var, low=None, high=None):
+    out = var
+    if high is not None:
+        if var > high:
+            out = high
+    if low is not None:
+        if var < low:
+            out = low
+    return out
+
+
+def cluster():
+    pass
+
+
+def switch(var):
+    return 1 - var
 
 
 def readRLE(filename, c_shape=(50, 50)):
+    '''la fonction qui permet de lire les rle'''
     if filename == 1:
         return np.zeros(c_shape).astype(int)
-    filename = "rle/" + filename + ".rle"
+    filename = "simulation/gol/rle/" + filename + ".rle"
     f = open(filename, "r")
     s = ''
     while True:
@@ -66,3 +104,7 @@ def readRLE(filename, c_shape=(50, 50)):
             coef = ''
 
     return colone[1:]
+
+
+def invertion_colorimetrique(c):
+    return ((255 - np.array(c)) % 255).tolist()

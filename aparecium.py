@@ -1,205 +1,312 @@
 from math import *
 import numpy as np
 import pygame.image
+# import maraudersMap as backend
 
-import lumos
-import maraudersMap as backend
 import pygame as pg
-from util import *
+import mandragore
+'''réorganisation'''
 
 
-pg.init()
+class Win:
+	def __init__(self):
+		self.window_caracteristique = {
+			'title': "John Conway's Game of Life",
+			'length side': (2 ** 9, 2 ** 9),
+			'size of cells': 2 ** 9 // 2 ** 6,
+			'active border': False,
+			'border': 4,
+			'pading': 3,
+
+		}
 
 
+		if not self.window_caracteristique['active border']:
+			self.window_caracteristique['border'] = 0
 
-###################################################### Variables ######################################################
+		self.win = pg.display.set_mode((self.window_caracteristique['length side'][0] + self.window_caracteristique['border'] * 2,
+										self.window_caracteristique['length side'][1] + self.window_caracteristique['border'] * 2), pg.RESIZABLE)
+		self.winPrevMousePos = pg.mouse.get_pos()
+		pg.display.set_icon(pygame.image.load('textures/logo.png'))
+		pg.display.set_caption(self.window_caracteristique['title'])
+		pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
-    ## v Preinit vars v ##
+		self.camX = 0
+		self.camY = 0
+		self.CellClr = (255, 255, 255)
+		self.BgClr = (0, 0, 0)
+		self.log_var = ''
+		self.decalage = 0, 0
+		return
 
-BorderW = 4 # pos of the sim on the win
-BorderH = 4
+	def set_decalage(self, x, y):
+		self.decalage = x, y
 
-WinW = 512
-WinH = 512
+	def log(self, *info):
 
-WorldW = 128
-WorldH = 128
+		self.log_var += "".join([f'{" | " if i % 2 == 0 else ": "}{info[i]}' for i in range(len(info))])
+		return self.log_var
 
-    ## v Win init v ##
-
-win = pg.display.set_mode((WinW + BorderW * 2, WinH + BorderH * 2))
-pg.display.set_icon(pygame.image.load('icon.png'))
-pg.display.set_caption("GoL")
-pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
-
-    ## v WinMenu v ##
-
-winPrevMousePos = pg.mouse.get_pos()
-winMenuState = False
-winMenuPos = (0,0)
-
-    ## v Other v ##
-
-CellSize = 8 # Zoom, in a way
-CellClr = CellClrDef = (255,255,255)
-BgClr = BgClrDef = (0,0,0)
-
-CamX = 0
-CamY = 0
-CamW = int(WinW / CellSize)
-CamH = int(WinH / CellSize)
-
-frameCount = 0
+	def aparecium(self, world=np.array([[1, 0, 1], [1, 1, 1], [1, 0, 1]])):
+		"""
+		afiche un array dans la fenaitre pygame
+		:param world: l'array a aficher dans la fenetre pygame
+		"""
+		world_size = world.shape
+		self.win.fill(self.BgClr)
 
 
+		dec_Y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
+		dec_X = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
 
-######################################################### Core #########################################################
+		view = world[mandragore.clamp(dec_Y//self.window_caracteristique['size of cells'], 0, world_size[0]):
+					 mandragore.clamp(ceil(dec_Y/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][1]/self.window_caracteristique['size of cells']),0,world_size[0]),
+			   		 mandragore.clamp(dec_X//self.window_caracteristique['size of cells'], 0, world_size[1]):
+					 mandragore.clamp(ceil(dec_X/self.window_caracteristique['size of cells'])+ceil(self.window_caracteristique['length side'][0]/self.window_caracteristique['size of cells']),0,world_size[1])]
 
-life = backend.Life((WorldW, WorldH))
-life.draw_adapt('canadagoose', (0,0), rotation=2)
-World = life.getlife()
+		view_cordantate = np.array(np.where(view == 1)).tolist()
 
+		decalage_x = dec_X % self.window_caracteristique['size of cells'] if dec_X > 0 else dec_X
+		decalage_y = dec_Y % self.window_caracteristique['size of cells'] if dec_Y > 0 else dec_Y
 
+		for cy, cx in zip(*view_cordantate):
+			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_x,
+												cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_y,
+												self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
 
-def aparecium(world):
-    global CamX, CamY
-    CamX = clamp(CamX, 0, World.shape[0] - CamW)
-    CamY = clamp(CamY, 0, World.shape[1] - CamH)
-    View = np.array(world[floor(CamY):floor(CamY)+CamH,floor(CamX):floor(CamX)+CamW])
-    
-    win.fill(BgClr) # fill black / reset
-    
-    view_cordantate = np.array(np.where(View == 1)).tolist()
-    for cy, cx in zip(view_cordantate[0],view_cordantate[1]):
-        pg.draw.rect(win, CellClr, (cx * CellSize + BorderW, cy * CellSize + BorderH, CellSize, CellSize))
+		if self.window_caracteristique['active border']:
+			self.edgeBorders(world.shape)
 
+		return
 
+	def edgeBorders(self, world_shape):
+		# revoir le comportement des bordure dans le cas d'un désoume
+		if self.camX == 0:
+			pg.draw.rect(self.win, self.CellClr, (0, 0,
+												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+		if self.camX >= world_shape[0] - self.window_caracteristique['definition']:
+			pg.draw.rect(self.win, self.CellClr, (self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'], 0,
+												self.window_caracteristique['border']-self.window_caracteristique['pading'], self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2))
+		if self.camY == 0:
+			pg.draw.rect(self.win, self.CellClr, (0, 0,
+												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
+		if self.camY >= world_shape[1] - self.window_caracteristique['definition']:
+			pg.draw.rect(self.win, self.CellClr, (0, self.window_caracteristique['length side'] + self.window_caracteristique['border']+self.window_caracteristique['pading'],
+												self.window_caracteristique['length side'] + self.window_caracteristique['border'] * 2, self.window_caracteristique['border']-self.window_caracteristique['pading']))
 
-def edgeBorders(stroke, world):
-    if world.shape[0] < WinW/CellSize or world.shape[1] < WinH/CellSize:
-        pg.draw.rect(win, CellClr, (0,0, stroke,world.shape[1]*CellSize + BorderH*2))
-        pg.draw.rect(win, CellClr, (world.shape[0]*CellSize + BorderW+stroke,0, stroke,world.shape[1]*CellSize + BorderH*2))
-        pg.draw.rect(win, CellClr, (0,0, world.shape[0]*CellSize + BorderW*2,stroke))
-        pg.draw.rect(win, CellClr, (0,world.shape[1]*CellSize + BorderH+stroke, world.shape[0]*CellSize + BorderW*2, stroke))
-    else:
-        if CamX <= stroke:
-            pg.draw.rect(win, CellClr, (0,0, stroke,WinH+BorderH*2))
-        if CamX >= world.shape[0] - CamW - stroke:
-            pg.draw.rect(win, CellClr, (WinW + BorderW*2 - stroke,0, stroke,WinH+BorderH*2))
-        if CamY <= stroke:
-            pg.draw.rect(win, CellClr, (0,0, WinW+BorderW*2,stroke))
-        if CamY >= world.shape[1] - CamH - stroke:
-            pg.draw.rect(win, CellClr, (0,WinH+BorderH*2-stroke, WinW+BorderW*2,stroke))
+	def moov(self, X=0, Y=0):
+		self.camX += X
+		self.camY += Y
 
+	def zoom(self, z):
+		self.window_caracteristique['size of cells'] = mandragore.clamp(self.window_caracteristique['size of cells'] + z, 1)
 
+class Menu_contextuele:
+	rectangle = [0, 0, 0, 0]
+	padding = 5
 
+	def __init__(self, surface, width, size, color, menu_contenue=[]):
 
-def winMenu(pos, stroke):
-    global winMenuState
-    mPos = np.array(pos) # = mutablePos, can't do math on tuples bc they're "immutable"
-    dillan = pg.font.SysFont("Dillan", 16)
+		self.surface = surface
+		self.width = width
+		self.size = size
+		self.color = color
 
-    # margin
-    pg.draw.rect(win, BgClr, (pos[0],pos[1],150,220))
+		self.section_lst = []
+		self.add_sections(menu_contenue)
+		self.afiche = False
+		self.menu_surface = None
 
-    # outline # might hardcode it bc useless calculations, stroke arg doesn't look good at other values
-    pg.draw.rect(win, CellClr, (pos[0]+stroke, pos[1]+stroke, 150-(stroke*2), 220-(stroke*2)))
-    pg.draw.rect(win, BgClr, (pos[0] + (stroke*1.5), pos[1] + (stroke*1.5), 150 - (stroke * 3), 220 - (stroke * 3)))
+	def add_sections(self, menu_contenue):
+		for section in menu_contenue:
+			self.section_lst.append(self.Section(section, self.width, self.size, self.color))
+		return
 
-    # buttons
-
-    ## Play/Pause
-    buttonNumber = 0
-    prev = pg.image.load("textures/actions/pause.png")
-    win.blit(prev, mPos+(stroke*3,stroke*3 + buttonNumber*16))
-    prevLbl = dillan.render("Pause", True, (255,255,255))
-    win.blit(prevLbl,mPos+(stroke*4 + 16,stroke*3 + 3 + buttonNumber*16)) # 3=distance from top | 2=inBetweenMargin
-
-    buttonNumber = 1
-    speed = pg.image.load("textures/actions/speed.png")
-    win.blit(speed, mPos + (stroke*3, stroke*3 + 2 + buttonNumber*16))
-    speedLbl = dillan.render("Speed [Slider]", True, (255, 255, 255))
-    win.blit(speedLbl, mPos + (stroke*4 + 16, stroke*3 + 3 + 2 + buttonNumber*16))
-
-
-
-Winrun = True
-GoLPhase = "sim"
-SimRun = True
-while Winrun:
-    pg.time.delay(8) # 33ms ~= 30fps | 16ms ~= 60fps | multi-threading and gpu accel to be made, might not be needed
-    if pg.event.get(pg.QUIT):
-        Winrun = False
-
-    # if alt then keyIn else keyOn
-    if pg.event.get(pg.KEYDOWN) if pg.key.get_pressed()[pg.K_LALT] else pg.key.get_pressed():
-        CamX += int(pg.key.get_pressed()[pg.K_RIGHT]) - int(pg.key.get_pressed()[pg.K_LEFT])
-        CamY += int(pg.key.get_pressed()[pg.K_DOWN]) - int(pg.key.get_pressed()[pg.K_UP])
-
-    # keyIn
-    if pg.event.get(pg.KEYDOWN):
-        if pg.key.get_pressed()[pg.K_SPACE]:
-            #GoLPhase = "edit" if GoLPhase == "simu" else "simu"
-            SimRun = switch(SimRun)
-        if pg.key.get_pressed()[pg.K_t]:
-            # swap
-            BgClr = CellClrDef if BgClr == BgClrDef else BgClrDef
-            CellClr = BgClrDef if CellClr == CellClrDef else CellClrDef
-
-
-    # show winMenu on RClick
-    if pg.mouse.get_pressed()[2] and winMenuState == False:
-        winMenuState = True
-        winMenuPos = pg.mouse.get_pos()
-
-    # unfocus winMenu or move
-    if pg.mouse.get_pressed()[0]:
-        if winMenuState:
-            if (pg.mouse.get_pos()[0] > winMenuPos[0] + 150 or pg.mouse.get_pos()[0] < winMenuPos[0]) or (pg.mouse.get_pos()[1] < winMenuPos[1] or pg.mouse.get_pos()[1] > winMenuPos[1] + 220):
-                winMenuState = False
-        else:
-            CamX += (winPrevMousePos[0] - pg.mouse.get_pos()[0]) / 16
-            CamY += (winPrevMousePos[1] - pg.mouse.get_pos()[1]) / 16
-
-            # at the end to be used for the next frame
-            winPrevMousePos = pg.mouse.get_pos()
-    else:
-        winPrevMousePos = pg.mouse.get_pos()
-    if pg.mouse.get_pressed()[2]:
-        if winMenuState:
-            if (pg.mouse.get_pos()[0] > winMenuPos[0] + 150 or pg.mouse.get_pos()[0] < winMenuPos[0]) or (pg.mouse.get_pos()[1] < winMenuPos[1] or pg.mouse.get_pos()[1] > winMenuPos[1] + 220):
-                winMenuState = False
+	def menu_clasic_comportement_right_clic(self):
 
 
 
-    # calc next frame
-    if SimRun:
-        life.evolve()
-        World = life.getlife()
-        frameCount += 1
-        # debug
-        print("Frame:", frameCount, "World Size:", World.shape, "Camera Position:", CamX, CamY, "taille du monde",
-              life.global_shape)
+		souris_event_up = pg.event.get(pg.MOUSEBUTTONUP)
 
-    aparecium(World)
+		if souris_event_up:
+			souris_event_up = souris_event_up[0]
 
-    # applied every frame will get rid of eventually actually ima do it now so if u still see this line well idk must have gotten lazy
-    #if GoLPhase == "edit":
-    #    aparecium(StartWorld)
-    #if GoLPhase == "sim":
+			if souris_event_up.button == 3 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
+				self.afiche = True
+				self.rectangle[:2] = souris_event_up.pos
+
+			elif souris_event_up.button == 1 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
+				self.afiche = False
 
 
-    # ITS IN DA NAME FFS U RLY NEED A COMMENT FOR DIS
-    if True:
-        edgeBorders(2, World)
 
-    # defer winMenu() to after everything else, position in the code acts as z-index
-    if winMenuState:
-        winMenu(winMenuPos, 4)
-
-    # vvv WOW DIS IS IMPORTANT HEY LOOK ITS RIGHT FKIN HERE vvv
-    pg.display.update()
-    # ^^^ SAW IT NAH TOO BAD U MISSED IT BRAINDEAD DUMBA- ^^^
+		if self.afiche:
+			self.show_menue(self.surface, self.rectangle[0:2].copy(), self.width, self.size, self.color)
+			if pg.rect.Rect(self.rectangle).collidepoint(pg.mouse.get_pos()):
+				pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
+			else:
+				pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
+		else:
+			pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
 
-pg.quit()
+
+	def show_menue(self, surface, pos, width, size, color):
+
+		pos = tuple(pos)
+		self.menu_surface = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
+
+		self.rectangle[2] = self.padding
+		self.rectangle[3] = self.padding
+		self.rectangle[0:2] = pos
+
+		for section in self.section_lst:
+			section.show_section(self.menu_surface, self.rectangle, width, size, color, section != self.section_lst[0])
+
+		self.rectangle[2] += width * size
+		self.rectangle[2] += self.padding
+		self.rectangle[3] += 1 + self.padding
+		pg.draw.rect(surface, (np.array((mandragore.invertion_colorimetrique(color))+np.array(color))/2).tolist(), self.rectangle)
+		pg.draw.rect(surface, color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
+		surface.blit(self.menu_surface, (0, 0))
+		# self.rectangle = [0,0,0,0]
+		return
+
+	class Section:
+		def __init__(self, options, width, size, color):
+			self.option_lst = []
+			self.add_options(options, width, size, color)
+
+		def add_options(self, options, width, size, color):
+			for option in options:
+				self.option_lst.append(self.Option(*option, width, size, color))
+
+		def show_section(self, surface, rect, width, size, color, line=True):
+			if line:
+				rect[3] += 4
+				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), (rect[0] + rect[2], rect[1] + rect[3]), (rect[0] + rect[2] + width * size, rect[1] + rect[3]), 1)
+				rect[3] += 4 + 1
+
+			for option in self.option_lst:
+				option.show_option(surface, rect, width, size, color)
+				rect[3] += size
+
+		class Option:
+			padding_y = 1
+			border_image = padding_y
+			image_title = padding_y
+			short_border = padding_y
+			font = 'textures/SmallMemory.ttf'
+			color_coef = 450
+
+			def __init__(self, image, name, function, short, width, size, color):
+				self.image = pg.image.load(image) if image != '' else ''
+				self.name = name
+				self.function = function
+				self.short = short
+
+				######################################################################################################################
+
+				self.main_rect = 0, 0, 0, 0
+				self.bg_color = (0, 0, 0)
+				self.historry_pos = None
+				self.pos = (0, 0)
+				self.color = color
+				self.rect = [0,0,0,0]
+				self.width = width
+				self.size =	size
+
+
+				self.image_size = (0, 0)
+				self.image_pos = (0, 0)
+
+				self.font_object = None
+
+				self.name_surf = None
+				self.name_rect = None
+
+				self.short_surf = None
+				self.short_rect = None
+
+				pg.font.init()
+
+
+			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
+
+				self.name = name if name is not None else self.name
+				self.image = pg.image.load(image) if image is not None else self.image
+				self.short = short if short is not None else self.short
+				self.function = fonction if fonction is not None else self.function
+
+				self.name = name if name is not None else self.name
+				self.name = name if name is not None else self.name
+				self.name = name if name is not None else self.name
+				self.name = name if name is not None else self.name
+
+				self.update()
+
+
+
+			def update(self):
+				self.historry_pos = self.rect[:2]
+
+				self.bg_color = mandragore.clamp(self.color[0] - self.color[0] * self.color_coef / 100, 0, 255), \
+								mandragore.clamp(self.color[1] - self.color[1] * self.color_coef / 100, 0, 255), \
+								mandragore.clamp(self.color[2] + self.color[2] * self.color_coef / 100, 0, 255)
+
+				xpos = self.border_image
+
+				self.pos = self.rect[0] + self.rect[2], self.rect[1] + self.rect[3]
+				self.main_rect = (*self.pos[:2], self.width * self.size, self.size)
+
+				self.image_size = (self.size - 2 * self.padding_y, self.size - 2 * self.padding_y)
+				self.image_pos = (self.pos[0] + xpos, self.pos[1] + self.padding_y)
+				self.image = pg.transform.scale(self.image, self.image_size)
+
+				xpos += self.size - 2 * self.padding_y + self.image_title
+				#self.font_object = pg.font.Font(self.font, self.size - 2 * self.padding_y)
+
+				self.font_object = pg.font.Font('textures/SmallMemory.ttf', 18)
+				self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(self.color))
+				self.name_rect = self.name_surf.get_rect()
+				self.name_rect.center = (self.pos[0] + xpos + self.name_rect[2] / 2, self.pos[1] + self.size / 2)
+
+				self.short_surf = self.font_object.render(self.short, True, (np.array((mandragore.invertion_colorimetrique(self.color)) + np.array(self.color)) / 2).tolist())
+				self.short_rect = self.short_surf.get_rect()
+				self.short_rect.center = (self.pos[0] + self.main_rect[2] - self.short_rect.size[0] / 2, self.pos[1] + self.size / 2)
+
+
+			def show_option(self, surface, rect,  width, size, color):
+				self.rect = rect.copy()
+
+
+
+
+
+				if rect[:2] != sexlf.historry_pos:
+					self.update()
+
+
+
+
+
+				hillighted = False
+				if pg.rect.Rect(self.main_rect).collidepoint(pg.mouse.get_pos()):
+					hillighted = True
+
+				mouse = pg.event.get(pg.MOUSEBUTTONDOWN)
+				if mouse:
+					mouse2 = mouse[0]
+					if pg.rect.Rect(self.main_rect).collidepoint(mouse2.pos):
+						self.function()
+					else:
+						pg.event.post(mouse2)
+
+
+				bg_color = self.bg_color if hillighted else color
+
+				pg.draw.rect(surface, bg_color, self.main_rect)
+
+				surface.blit(self.image.convert_alpha(), self.image_pos)
+				surface.blit(self.name_surf.convert_alpha(), self.name_rect)
+				surface.blit(self.short_surf.convert_alpha(), self.short_rect)
