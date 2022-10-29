@@ -35,7 +35,7 @@ class GameOfLife:
 		self.edit_mod = not self.edit_mod
 
 	def key_bord_input(self):
-		speed = 5
+		speed = 1
 		pressed = pg.key.get_pressed()
 		key_event = pg.event.get(pg.KEYDOWN)
 		self.pg_win.log("touche", self.touche)
@@ -121,8 +121,8 @@ class GameOfLife:
 				program_run = False
 			self.key_bord_input()
 			arr = self.game_of_life.get_life(True)
-			self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
-			self.pg_win.aparecium(arr)
+			# self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
+			self.pg_win.aparecium()
 
 			self.menu.menu_clasic_comportement_right_clic()
 			pg.display.update()
