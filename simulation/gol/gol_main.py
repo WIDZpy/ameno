@@ -35,7 +35,8 @@ class GameOfLife:
 		self.edit_mod = not self.edit_mod
 
 	def key_bord_input(self):
-		speed = 1
+		speed = 0.5
+		speed_zoom = 10
 		pressed = pg.key.get_pressed()
 		key_event = pg.event.get(pg.KEYDOWN)
 		self.pg_win.log("touche", self.touche)
@@ -85,7 +86,7 @@ class GameOfLife:
 
 			if key.scancode == 82:
 				if pressed[pg.K_LCTRL]:
-					self.pg_win.zoom_middle(-5)
+					self.pg_win.zoom_middle(-1 * speed_zoom)
 					self.touche = "ctl + ↑"
 				if pressed[pg.K_LALT]:
 					self.pg_win.moov(0, -10)
@@ -93,7 +94,7 @@ class GameOfLife:
 
 			if key.scancode == 81:
 				if pressed[pg.K_LCTRL]:
-					self.pg_win.zoom_middle(5)
+					self.pg_win.zoom_middle(speed_zoom)
 					self.touche = "ctl + ↓"
 				if pressed[pg.K_LALT]:
 					self.pg_win.moov(0, 10)

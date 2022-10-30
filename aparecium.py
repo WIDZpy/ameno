@@ -96,8 +96,8 @@ class Win:
 		return
 
 	def moov(self, x=0, y=0):
-		self.camX += x
-		self.camY += y
+		self.camX += round(x * self.window_caracteristique['size of cells'])
+		self.camY += round(y * self.window_caracteristique['size of cells'])
 
 	def zoom_corner(self, z):
 		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + mandragore.ceil_floor((self.window_caracteristique['size of cells'] * z) / 100), 1)
