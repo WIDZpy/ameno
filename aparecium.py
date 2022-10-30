@@ -16,17 +16,18 @@ class Win:
 			'title': "John Conway's Game of Life",
 			'length side': (2 ** 9, 2 ** 9),
 			'size of cells': 2 ** 9 // 2 ** 6,
-			'active border': False,
+			'active border': True,
 			'border': 4,
-			'pading': 3,
+			'pading': 4,
 
 		}
 
 		if not self.win_spec['active border']:
 			self.win_spec['border'] = 0
+			self.win_spec['pading'] = 0
 
-		self.win = pg.display.set_mode((self.win_spec['length side'][0] + self.win_spec['border'] * 2,
-										self.win_spec['length side'][1] + self.win_spec['border'] * 2), pg.RESIZABLE)
+		self.win = pg.display.set_mode((self.win_spec['length side'][0],
+										self.win_spec['length side'][1]), pg.RESIZABLE)
 		self.winPrevMousePos = pg.mouse.get_pos()
 		pg.display.set_icon(pygame.image.load('textures/logo.png'))
 		pg.display.set_caption(self.win_spec['title'])
@@ -93,18 +94,31 @@ class Win:
 		print("size of cell : ", self.win_spec['size of cells'], "decalage :", decalage_x, "dec", dec_x)
 
 		for cy, cx in zip(*view_cordantate):
-			pg.draw.rect(self.win, self.CellClr, (cx * self.win_spec['size of cells'] + self.win_spec['border'] - decalage_x,
-												  cy * self.win_spec['size of cells'] + self.win_spec['border'] - decalage_y,
+			pg.draw.rect(self.win, self.CellClr, (cx * self.win_spec['size of cells'] - decalage_x,
+												  cy * self.win_spec['size of cells'] - decalage_y,
 												  self.win_spec['size of cells'], self.win_spec['size of cells']))
 
 		if self.win_spec['active border']:
-			self.edgeBorders(world.shape)
+			self.edgeBorders(world.shape, dec_x, dec_y)
 
 		return
 
-	def edgeBorders(self, world_shape):
-		# revoir le comportement des bordure dans le cas d'un désoume
-		return
+	def edgeBorders(self, world_shape, dec_x, dec_y):
+		pg.draw.rect(self.win, (230,0,0), (-1*(dec_x + self.win_spec['pading'] + self.win_spec['border']),
+										   -1*(dec_y + self.win_spec['pading'] + self.win_spec['border']),
+											  self.win_spec['border'], (self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[0] * self.win_spec['size of cells']))
+
+		pg.draw.rect(self.win, (230, 0, 0), (-1 * (dec_x + self.win_spec['pading'] + self.win_spec['border']),
+											 -1 * (dec_y + self.win_spec['pading'] + self.win_spec['border']),
+											(self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[1] * self.win_spec['size of cells'], self.win_spec['border']))
+
+		pg.draw.rect(self.win, (230, 0, 0), (-1 * dec_x + world_shape[1] * self.win_spec['size of cells'] + self.win_spec['pading'],
+											 -1*(dec_y + self.win_spec['pading'] + self.win_spec['border']),
+											 self.win_spec['border'], (self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[0] * self.win_spec['size of cells']))
+
+		pg.draw.rect(self.win, (230, 0, 0), (-1 * (dec_x + self.win_spec['pading'] + self.win_spec['border']),
+											 -1 * dec_y + world_shape[0] * self.win_spec['size of cells'] + self.win_spec['pading'],
+											(self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[1] * self.win_spec['size of cells'],self.win_spec['border']))
 
 	def key_bord_input(self):
 		speed = 0.5
