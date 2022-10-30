@@ -36,6 +36,7 @@ class Win:
 		self.CellClr = (255, 255, 255)
 		self.BgClr = (0, 0, 0)
 		self.log_var = ''
+		self.touche = ''
 		self.decalage = 0, 0
 		return
 
@@ -94,6 +95,72 @@ class Win:
 	def edgeBorders(self, world_shape):
 		# revoir le comportement des bordure dans le cas d'un désoume
 		return
+
+	def key_bord_input(self):
+		speed = 0.5
+		speed_zoom = 10
+		pressed = pg.key.get_pressed()
+		key_event = pg.event.get(pg.KEYDOWN)
+		self.log("touche", self.touche)
+
+		if len(key_event) == 0 and not (pressed[pg.K_LCTRL] or pressed[pg.K_LALT]):
+
+			if pressed[pg.K_RIGHT]:
+				self.moov(speed)
+				self.touche = "→"
+
+			if pressed[pg.K_LEFT]:
+				self.moov(-speed)
+				self.touche = "←"
+
+			if pressed[pg.K_UP]:
+				self.moov(0, -speed)
+				self.touche = "↑"
+
+			if pressed[pg.K_DOWN]:
+				self.moov(0, speed)
+				self.touche = "↓"
+
+		for key in key_event:
+			# print(key)
+			if key.unicode == ' ':
+				self.touche = "space"
+				if self.game_of_life.run:
+					self.pause_()
+				else:
+					self.play_()
+
+			if key.scancode == 79:  # fleche de droite
+				if pressed[pg.K_LCTRL]:
+					self.next_()
+					self.touche = "ctl + →"
+
+				if pressed[pg.K_LALT]:
+					self.moov(10)
+					self.touche = "alt + →"
+
+			if key.scancode == 80:
+				if pressed[pg.K_LCTRL]:
+					self.prev_()
+				if pressed[pg.K_LALT]:
+					self.moov(-10)
+					self.touche = "alt + ←"
+
+			if key.scancode == 82:
+				if pressed[pg.K_LCTRL]:
+					self.zoom_middle(-1 * speed_zoom)
+					self.touche = "ctl + ↑"
+				if pressed[pg.K_LALT]:
+					self.moov(0, -10)
+					self.touche = "alt + ↑"
+
+			if key.scancode == 81:
+				if pressed[pg.K_LCTRL]:
+					self.zoom_middle(speed_zoom)
+					self.touche = "ctl + ↓"
+				if pressed[pg.K_LALT]:
+					self.moov(0, 10)
+					self.touche = "alt + ↓"
 
 	def moov(self, x=0, y=0):
 		self.camX += round(x * self.window_caracteristique['size of cells'])
