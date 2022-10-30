@@ -53,8 +53,8 @@ class Win:
 		:param world: l'array a afficher dans la fenêtre pygame
 		"""
 
-		#
 		world_size = world.shape
+
 		self.win.fill(self.BgClr)
 
 		dec_y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
@@ -72,6 +72,7 @@ class Win:
 		decalage_x = dec_x % self.window_caracteristique['size of cells'] if dec_x > 0 else dec_x
 		decalage_y = dec_y % self.window_caracteristique['size of cells'] if dec_y > 0 else dec_y
 
+
 		for cy, cx in zip(*view_cordantate):
 
 			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_x,
@@ -86,12 +87,15 @@ class Win:
 	def edgeBorders(self, world_shape):
 		# revoir le comportement des bordure dans le cas d'un désoume
 		return
+
 	def moov(self, x=0, y=0):
 		self.camX += x
 		self.camY += y
 
 	def zoom(self, z):
-		self.window_caracteristique['size of cells'] = mandragore.clamp(self.window_caracteristique['size of cells'] + z, 1)
+		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + (self.window_caracteristique['size of cells'] * z) // 100, 1)
+		print(self.window_caracteristique['size of cells'], z,  (self.window_caracteristique['size of cells'] * z))
+		self.window_caracteristique['size of cells'] = new_size
 
 
 class MenuContextuele:
@@ -261,7 +265,7 @@ class MenuContextuele:
 			def show_option(self, surface, rect, width, size, color):
 				self.rect = rect.copy()
 
-				if rect[:2] != sexlf.historry_pos:
+				if rect[:2] != self.historry_pos:
 					self.update()
 
 				hillighted = False
