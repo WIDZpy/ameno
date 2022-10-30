@@ -39,15 +39,18 @@ class Win:
 		self.decalage = 0, 0
 		return
 
+	def set_decalage(self, x, y):
+		self.decalage = x, y
+
 	def set_center(self, x, y):
 		self.camX = x - self.window_caracteristique['length side'][0] // 2
 		self.camY = y - self.window_caracteristique['length side'][1] // 2
 
-	def set_decalage(self, x, y):
-		self.decalage = x, y
+	def get_center(self):
+		return self.camX + self.window_caracteristique['length side'][0] // 2, \
+			   self.camY + self.window_caracteristique['length side'][1] // 2
 
 	def log(self, *info):
-
 		self.log_var += "".join([f'{" | " if i % 2 == 0 else ": "}{info[i]}' for i in range(len(info))])
 		return self.log_var
 
@@ -79,7 +82,6 @@ class Win:
 		print("size of cell : ", self.window_caracteristique['size of cells'], "decalage :", decalage_x, "dec", dec_x)
 
 		for cy, cx in zip(*view_cordantate):
-
 			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_x,
 												  cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_y,
 												  self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
@@ -100,18 +102,20 @@ class Win:
 	def zoom_corner(self, z):
 		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + mandragore.ceil_floor((self.window_caracteristique['size of cells'] * z) / 100), 1)
 
-		self.camX = round(self.camX * new_size/self.window_caracteristique['size of cells'])
-		self.camY = round(self.camY * new_size/self.window_caracteristique['size of cells'])
+		self.camX = round(self.camX * new_size / self.window_caracteristique['size of cells'])
+		self.camY = round(self.camY * new_size / self.window_caracteristique['size of cells'])
 
 		self.window_caracteristique['size of cells'] = new_size
 
-	def zoom_middle(self):
+	def zoom_middle(self,z):
 		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + mandragore.ceil_floor((self.window_caracteristique['size of cells'] * z) / 100), 1)
 
+		center = self.get_center()
+		new_center = round(center[0] * new_size / self.window_caracteristique['size of cells']), \
+					 round(center[1] * new_size / self.window_caracteristique['size of cells'])
 
-
+		self.set_center(*new_center)
 		self.window_caracteristique['size of cells'] = new_size
-
 
 
 class MenuContextuele:

@@ -85,7 +85,7 @@ class GameOfLife:
 
 			if key.scancode == 82:
 				if pressed[pg.K_LCTRL]:
-					self.pg_win.zoom(-5)
+					self.pg_win.zoom_middle(-5)
 					self.touche = "ctl + ↑"
 				if pressed[pg.K_LALT]:
 					self.pg_win.moov(0, -10)
@@ -93,7 +93,7 @@ class GameOfLife:
 
 			if key.scancode == 81:
 				if pressed[pg.K_LCTRL]:
-					self.pg_win.zoom(5)
+					self.pg_win.zoom_middle(5)
 					self.touche = "ctl + ↓"
 				if pressed[pg.K_LALT]:
 					self.pg_win.moov(0, 10)
