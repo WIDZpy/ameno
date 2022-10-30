@@ -10,6 +10,7 @@ import mandragore
 
 
 class Win:
+	void = lambda *x : None
 	def __init__(self):
 		self.window_caracteristique = {
 			'title': "John Conway's Game of Life",
@@ -38,6 +39,16 @@ class Win:
 		self.log_var = ''
 		self.touche = ''
 		self.decalage = 0, 0
+
+
+
+		self.racoursit = {
+			'play': Win.void,
+			'pause': Win.void,
+			'next': Win.void,
+			'prev': Win.void
+		}
+		print(self.racoursit)
 		return
 
 	def set_decalage(self, x, y):
