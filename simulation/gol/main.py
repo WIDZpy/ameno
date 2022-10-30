@@ -113,6 +113,7 @@ class GameOfLife:
 		# self.game_of_life.point_and_clic((1,0))
 		# self.game_of_life.draw_adapt('canadagoose', (12, 22), rotation=0)
 		self.game_of_life.draw_random()
+		self.pg_win.set_decalage(self.game_of_life.bordure[0][0],self.game_of_life.bordure[1][0])
 		while program_run:
 			self.pg_win.log()
 			clock.tick(60)
@@ -121,8 +122,8 @@ class GameOfLife:
 				program_run = False
 			self.key_bord_input()
 			arr = self.game_of_life.get_life(True)
-			# self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
-			self.pg_win.aparecium()
+			self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
+			self.pg_win.aparecium(arr)
 
 			self.menu.menu_clasic_comportement_right_clic()
 			pg.display.update()

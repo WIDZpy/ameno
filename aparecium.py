@@ -72,6 +72,7 @@ class Win:
 		decalage_x = dec_x % self.window_caracteristique['size of cells'] if dec_x > 0 else dec_x
 		decalage_y = dec_y % self.window_caracteristique['size of cells'] if dec_y > 0 else dec_y
 
+		print("size of cell : ", self.window_caracteristique['size of cells'], "decalage :", decalage_x, "dec", dec_x)
 
 		for cy, cx in zip(*view_cordantate):
 
@@ -93,9 +94,7 @@ class Win:
 		self.camY += y
 
 	def zoom(self, z):
-		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + (self.window_caracteristique['size of cells'] * z) // 100, 1)
-		print(self.window_caracteristique['size of cells'], z,  (self.window_caracteristique['size of cells'] * z))
-		self.window_caracteristique['size of cells'] = new_size
+		self.window_caracteristique['size of cells'] = mandragore.clamp(self.window_caracteristique['size of cells'] + z, 1)
 
 
 class MenuContextuele:
