@@ -1,4 +1,4 @@
-import simulation.gol.main as game_of_life
+import simulation.gol.gol_main as game_of_life
 
 simu = None
 

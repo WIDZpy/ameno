@@ -39,6 +39,10 @@ class Win:
 		self.decalage = 0, 0
 		return
 
+	def set_center(self, x, y):
+		self.camX = x - self.window_caracteristique['length side'][0] // 2
+		self.camY = y - self.window_caracteristique['length side'][1] // 2
+
 	def set_decalage(self, x, y):
 		self.decalage = x, y
 
@@ -93,8 +97,21 @@ class Win:
 		self.camX += x
 		self.camY += y
 
-	def zoom(self, z):
-		self.window_caracteristique['size of cells'] = mandragore.clamp(self.window_caracteristique['size of cells'] + z, 1)
+	def zoom_corner(self, z):
+		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + mandragore.ceil_floor((self.window_caracteristique['size of cells'] * z) / 100), 1)
+
+		self.camX = round(self.camX * new_size/self.window_caracteristique['size of cells'])
+		self.camY = round(self.camY * new_size/self.window_caracteristique['size of cells'])
+
+		self.window_caracteristique['size of cells'] = new_size
+
+	def zoom_middle(self):
+		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + mandragore.ceil_floor((self.window_caracteristique['size of cells'] * z) / 100), 1)
+
+
+
+		self.window_caracteristique['size of cells'] = new_size
+
 
 
 class MenuContextuele:

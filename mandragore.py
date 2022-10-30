@@ -1,8 +1,17 @@
 import numpy as np
 import random as rnd
+import math
 '''
 util function
 '''
+
+
+def ceil_floor(x):
+    if x > 0:
+        x = math.ceil(x)
+    else:
+        x = math.floor(x)
+    return x
 
 
 def var_name(var, dir):
