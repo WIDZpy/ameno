@@ -17,8 +17,8 @@ class Win:
 			'length side': (2 ** 9, 2 ** 9),
 			'size of cells': 2 ** 9 // 2 ** 6,
 			'active border': True,
-			'border': 4,
-			'pading': 4,
+			'border': 1,
+			'pading': 1,
 
 		}
 
@@ -104,19 +104,19 @@ class Win:
 		return
 
 	def edgeBorders(self, world_shape, dec_x, dec_y):
-		pg.draw.rect(self.win, (230,0,0), (-1*(dec_x + self.win_spec['pading'] + self.win_spec['border']),
-										   -1*(dec_y + self.win_spec['pading'] + self.win_spec['border']),
-											  self.win_spec['border'], (self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[0] * self.win_spec['size of cells']))
+		pg.draw.rect(self.win, self.CellClr, (-1*(dec_x + self.win_spec['pading'] + self.win_spec['border']),
+										     -1*(dec_y + self.win_spec['pading'] + self.win_spec['border']),
+											 self.win_spec['border'], (self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[0] * self.win_spec['size of cells']))
 
-		pg.draw.rect(self.win, (230, 0, 0), (-1 * (dec_x + self.win_spec['pading'] + self.win_spec['border']),
+		pg.draw.rect(self.win, self.CellClr, (-1 * (dec_x + self.win_spec['pading'] + self.win_spec['border']),
 											 -1 * (dec_y + self.win_spec['pading'] + self.win_spec['border']),
 											(self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[1] * self.win_spec['size of cells'], self.win_spec['border']))
 
-		pg.draw.rect(self.win, (230, 0, 0), (-1 * dec_x + world_shape[1] * self.win_spec['size of cells'] + self.win_spec['pading'],
+		pg.draw.rect(self.win, self.CellClr, (-1 * dec_x + world_shape[1] * self.win_spec['size of cells'] + self.win_spec['pading'],
 											 -1*(dec_y + self.win_spec['pading'] + self.win_spec['border']),
 											 self.win_spec['border'], (self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[0] * self.win_spec['size of cells']))
 
-		pg.draw.rect(self.win, (230, 0, 0), (-1 * (dec_x + self.win_spec['pading'] + self.win_spec['border']),
+		pg.draw.rect(self.win, self.CellClr, (-1 * (dec_x + self.win_spec['pading'] + self.win_spec['border']),
 											 -1 * dec_y + world_shape[0] * self.win_spec['size of cells'] + self.win_spec['pading'],
 											(self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[1] * self.win_spec['size of cells'],self.win_spec['border']))
 
