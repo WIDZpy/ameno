@@ -12,7 +12,7 @@ import mandragore
 class Win:
 	void = lambda *x : None
 	def __init__(self):
-		self.window_caracteristique = {
+		self.win_spec = {
 			'title': "John Conway's Game of Life",
 			'length side': (2 ** 9, 2 ** 9),
 			'size of cells': 2 ** 9 // 2 ** 6,
@@ -22,14 +22,14 @@ class Win:
 
 		}
 
-		if not self.window_caracteristique['active border']:
-			self.window_caracteristique['border'] = 0
+		if not self.win_spec['active border']:
+			self.win_spec['border'] = 0
 
-		self.win = pg.display.set_mode((self.window_caracteristique['length side'][0] + self.window_caracteristique['border'] * 2,
-										self.window_caracteristique['length side'][1] + self.window_caracteristique['border'] * 2), pg.RESIZABLE)
+		self.win = pg.display.set_mode((self.win_spec['length side'][0] + self.win_spec['border'] * 2,
+										self.win_spec['length side'][1] + self.win_spec['border'] * 2), pg.RESIZABLE)
 		self.winPrevMousePos = pg.mouse.get_pos()
 		pg.display.set_icon(pygame.image.load('textures/logo.png'))
-		pg.display.set_caption(self.window_caracteristique['title'])
+		pg.display.set_caption(self.win_spec['title'])
 		pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
 		self.camX = 0
@@ -43,8 +43,7 @@ class Win:
 
 
 		self.racoursit = {
-			'play': Win.void,
-			'pause': Win.void,
+			'play/pause': Win.void,
 			'next': Win.void,
 			'prev': Win.void
 		}
@@ -55,12 +54,12 @@ class Win:
 		self.decalage = x, y
 
 	def set_center(self, x, y):
-		self.camX = x - self.window_caracteristique['length side'][0] // 2
-		self.camY = y - self.window_caracteristique['length side'][1] // 2
+		self.camX = x - self.win_spec['length side'][0] // 2
+		self.camY = y - self.win_spec['length side'][1] // 2
 
 	def get_center(self):
-		return self.camX + self.window_caracteristique['length side'][0] // 2, \
-			   self.camY + self.window_caracteristique['length side'][1] // 2
+		return self.camX + self.win_spec['length side'][0] // 2, \
+			   self.camY + self.win_spec['length side'][1] // 2
 
 	def log(self, *info):
 		self.log_var += "".join([f'{" | " if i % 2 == 0 else ": "}{info[i]}' for i in range(len(info))])
@@ -76,29 +75,29 @@ class Win:
 
 		self.win.fill(self.BgClr)
 
-		dec_y = self.camY + self.decalage[0] * self.window_caracteristique['size of cells']
-		dec_x = self.camX + self.decalage[1] * self.window_caracteristique['size of cells']
+		dec_y = self.camY + self.decalage[0] * self.win_spec['size of cells']
+		dec_x = self.camX + self.decalage[1] * self.win_spec['size of cells']
 
-		view = world[mandragore.clamp(dec_y // self.window_caracteristique['size of cells'], 0, world_size[0]):
-					 mandragore.clamp(ceil(dec_y / self.window_caracteristique['size of cells']) + ceil(self.window_caracteristique['length side'][1] / self.window_caracteristique['size of cells']),
+		view = world[mandragore.clamp(dec_y // self.win_spec['size of cells'], 0, world_size[0]):
+					 mandragore.clamp(ceil(dec_y / self.win_spec['size of cells']) + ceil(self.win_spec['length side'][1] / self.win_spec['size of cells']),
 									  0, world_size[0]),
-			   mandragore.clamp(dec_x // self.window_caracteristique['size of cells'], 0, world_size[1]):
-			   mandragore.clamp(ceil(dec_x / self.window_caracteristique['size of cells']) + ceil(self.window_caracteristique['length side'][0] / self.window_caracteristique['size of cells']), 0,
+			   mandragore.clamp(dec_x // self.win_spec['size of cells'], 0, world_size[1]):
+			   mandragore.clamp(ceil(dec_x / self.win_spec['size of cells']) + ceil(self.win_spec['length side'][0] / self.win_spec['size of cells']), 0,
 								world_size[1])]
 
 		view_cordantate = np.array(np.where(view == 1)).tolist()
 
-		decalage_x = dec_x % self.window_caracteristique['size of cells'] if dec_x > 0 else dec_x
-		decalage_y = dec_y % self.window_caracteristique['size of cells'] if dec_y > 0 else dec_y
+		decalage_x = dec_x % self.win_spec['size of cells'] if dec_x > 0 else dec_x
+		decalage_y = dec_y % self.win_spec['size of cells'] if dec_y > 0 else dec_y
 
-		print("size of cell : ", self.window_caracteristique['size of cells'], "decalage :", decalage_x, "dec", dec_x)
+		print("size of cell : ", self.win_spec['size of cells'], "decalage :", decalage_x, "dec", dec_x)
 
 		for cy, cx in zip(*view_cordantate):
-			pg.draw.rect(self.win, self.CellClr, (cx * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_x,
-												  cy * self.window_caracteristique['size of cells'] + self.window_caracteristique['border'] - decalage_y,
-												  self.window_caracteristique['size of cells'], self.window_caracteristique['size of cells']))
+			pg.draw.rect(self.win, self.CellClr, (cx * self.win_spec['size of cells'] + self.win_spec['border'] - decalage_x,
+												  cy * self.win_spec['size of cells'] + self.win_spec['border'] - decalage_y,
+												  self.win_spec['size of cells'], self.win_spec['size of cells']))
 
-		if self.window_caracteristique['active border']:
+		if self.win_spec['active border']:
 			self.edgeBorders(world.shape)
 
 		return
@@ -117,7 +116,7 @@ class Win:
 		if len(key_event) == 0 and not (pressed[pg.K_LCTRL] or pressed[pg.K_LALT]):
 
 			if pressed[pg.K_RIGHT]:
-				self.moov(speed)
+				self.moov(speed, 0)
 				self.touche = "→"
 
 			if pressed[pg.K_LEFT]:
@@ -136,14 +135,11 @@ class Win:
 			# print(key)
 			if key.unicode == ' ':
 				self.touche = "space"
-				if self.game_of_life.run:
-					self.pause_()
-				else:
-					self.play_()
+				self.racoursit['play/pause']()
 
 			if key.scancode == 79:  # fleche de droite
 				if pressed[pg.K_LCTRL]:
-					self.next_()
+					self.racoursit['next']()
 					self.touche = "ctl + →"
 
 				if pressed[pg.K_LALT]:
@@ -152,7 +148,8 @@ class Win:
 
 			if key.scancode == 80:
 				if pressed[pg.K_LCTRL]:
-					self.prev_()
+					self.racoursit['prev']()
+					self.touche = "ctl + ←"
 				if pressed[pg.K_LALT]:
 					self.moov(-10)
 					self.touche = "alt + ←"
@@ -174,26 +171,26 @@ class Win:
 					self.touche = "alt + ↓"
 
 	def moov(self, x=0, y=0):
-		self.camX += round(x * self.window_caracteristique['size of cells'])
-		self.camY += round(y * self.window_caracteristique['size of cells'])
+		self.camX += round(x * self.win_spec['size of cells'])
+		self.camY += round(y * self.win_spec['size of cells'])
 
 	def zoom_corner(self, z):
-		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + mandragore.ceil_floor((self.window_caracteristique['size of cells'] * z) / 100), 1)
+		new_size = mandragore.clamp(self.win_spec['size of cells'] + mandragore.ceil_floor((self.win_spec['size of cells'] * z) / 100), 1)
 
-		self.camX = round(self.camX * new_size / self.window_caracteristique['size of cells'])
-		self.camY = round(self.camY * new_size / self.window_caracteristique['size of cells'])
+		self.camX = round(self.camX * new_size / self.win_spec['size of cells'])
+		self.camY = round(self.camY * new_size / self.win_spec['size of cells'])
 
-		self.window_caracteristique['size of cells'] = new_size
+		self.win_spec['size of cells'] = new_size
 
 	def zoom_middle(self,z):
-		new_size = mandragore.clamp(self.window_caracteristique['size of cells'] + mandragore.ceil_floor((self.window_caracteristique['size of cells'] * z) / 100), 1)
+		new_size = mandragore.clamp(self.win_spec['size of cells'] + mandragore.ceil_floor((self.win_spec['size of cells'] * z) / 100), 1)
 
 		center = self.get_center()
-		new_center = round(center[0] * new_size / self.window_caracteristique['size of cells']), \
-					 round(center[1] * new_size / self.window_caracteristique['size of cells'])
+		new_center = round(center[0] * new_size / self.win_spec['size of cells']), \
+					 round(center[1] * new_size / self.win_spec['size of cells'])
 
 		self.set_center(*new_center)
-		self.window_caracteristique['size of cells'] = new_size
+		self.win_spec['size of cells'] = new_size
 
 
 class MenuContextuele:

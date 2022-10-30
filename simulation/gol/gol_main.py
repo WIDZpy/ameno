@@ -13,16 +13,20 @@ class GameOfLife:
 		self.menu = aparecium.MenuContextuele(self.pg_win.win, 5, 20, (30, 30, 30))
 		self.edit_mod = False
 
+		self.pg_win.racoursit['play/pause'] = self.play_pause_
+		self.pg_win.racoursit['next'] = self.next_
+		self.pg_win.racoursit['prev'] = self.prev_
+
 	def void_(self):
 		return
 
-	def play_(self):
-		self.game_of_life.play()
-		self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/pause.png', name='pause', fonction=self.pause_)
-
-	def pause_(self):
-		self.game_of_life.pause()
-		self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play', fonction=self.play_)
+	def play_pause_(self):
+		if not self.game_of_life.run:
+			self.game_of_life.play()
+			self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/pause.png', name='pause')
+		else:
+			self.game_of_life.pause()
+			self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
 
 	def prev_(self):
 		return
@@ -36,8 +40,8 @@ class GameOfLife:
 	def mainloop(self):
 
 		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, ''],
-								 ['textures/actions/play.png', 'play', self.play_, ''],
-								 ['textures/buttons/next.png', 'next', self.next_, '']]])
+								 ['textures/actions/play.png', 'play', self.play_pause_, 'space'],
+								 ['textures/buttons/next.png', 'next', self.next_, 'ctl + ->']]])
 
 		pg.init()
 		clock = pg.time.Clock()
