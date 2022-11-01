@@ -19,15 +19,24 @@ class Win:
 			'active border': True,
 			'border': 1,
 			'pading': 1,
-
+			'resizable': True,
 		}
 
 		if not self.win_spec['active border']:
 			self.win_spec['border'] = 0
 			self.win_spec['pading'] = 0
 
-		self.win = pg.display.set_mode((self.win_spec['length side'][0],
-										self.win_spec['length side'][1]), pg.RESIZABLE)
+
+
+		if self.win_spec.get('resizable'):
+			self.win = pg.display.set_mode((self.win_spec['length side'][0],
+											self.win_spec['length side'][1]), pg.RESIZABLE)
+
+		else:
+			self.win = pg.display.set_mode((self.win_spec['length side'][0],
+											self.win_spec['length side'][1]))
+
+
 		self.winPrevMousePos = pg.mouse.get_pos()
 		pg.display.set_icon(pygame.image.load('textures/logo.png'))
 		pg.display.set_caption(self.win_spec['title'])
@@ -48,7 +57,7 @@ class Win:
 			'next': Win.void,
 			'prev': Win.void
 		}
-		print(self.racoursit)
+
 		return
 
 	def set_decalage(self, x, y):
@@ -71,6 +80,7 @@ class Win:
 		fiche un array dans la fenêtre pygame
 		:param world: l'array a afficher dans la fenêtre pygame
 		"""
+		self.win_spec['length side'] = self.win.get_size()
 
 		world_size = world.shape
 
@@ -91,7 +101,6 @@ class Win:
 		decalage_x = dec_x % self.win_spec['size of cells'] if dec_x > 0 else dec_x
 		decalage_y = dec_y % self.win_spec['size of cells'] if dec_y > 0 else dec_y
 
-		print("size of cell : ", self.win_spec['size of cells'], "decalage :", decalage_x, "dec", dec_x)
 
 		for cy, cx in zip(*view_cordantate):
 			pg.draw.rect(self.win, self.CellClr, (cx * self.win_spec['size of cells'] - decalage_x,
@@ -146,7 +155,6 @@ class Win:
 				self.touche = "↓"
 
 		for key in key_event:
-			# print(key)
 			if key.unicode == ' ':
 				self.touche = "space"
 				self.racoursit['play/pause']()

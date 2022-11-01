@@ -9,16 +9,13 @@ import aparecium
 class GameOfLife:
 	def __init__(self):
 		self.pg_win = aparecium.Win()
-		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7))
+		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7), (600, 600))
 		self.menu = aparecium.MenuContextuele(self.pg_win.win, 5, 20, (30, 30, 30))
 		self.edit_mod = False
 
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
 		self.pg_win.racoursit['next'] = self.next_
 		self.pg_win.racoursit['prev'] = self.prev_
-
-	def void_(self):
-		return
 
 	def play_pause_(self):
 		if not self.game_of_life.run:
@@ -49,11 +46,13 @@ class GameOfLife:
 		program_run = True
 
 		# self.game_of_life.point_and_clic((1,0))
-		# self.game_of_life.draw_adapt('canadagoose', (12, 22), rotation=0)
-		self.game_of_life.draw_random()
+		self.game_of_life.draw_adapt('canadagoose', (12, 22), rotation=0)
+		# self.game_of_life.draw_random()
+
 		self.pg_win.set_decalage(self.game_of_life.bordure[0][0],self.game_of_life.bordure[1][0])
+
 		while program_run:
-			self.pg_win.log()
+			self.pg_win.log('win size', self.pg_win.win.get_size())
 			clock.tick(60)
 
 			if pg.event.get(pg.QUIT):
