@@ -47,10 +47,10 @@ class GameOfLife:
 		program_run = True
 
 		# self.game_of_life.point_and_clic((1,0))
-		self.game_of_life.draw_adapt('canadagoose', (12, 22), rotation=0)
-		# self.game_of_life.draw_random()
+		# self.game_of_life.draw_adapt('canadagoose', (0, 0), rotation=2)
+		self.game_of_life.draw_random()
 
-		self.pg_win.set_decalage(self.game_of_life.bordure[0][0],self.game_of_life.bordure[1][0])
+		self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
 
 		while program_run:
 			self.pg_win.log('win size', self.pg_win.win.get_size())

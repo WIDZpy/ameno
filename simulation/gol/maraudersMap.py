@@ -66,9 +66,6 @@ class Life:
         #     for bloop in loop:
         #         self.draw_adapt(bloop['fill'], bloop['coordinate x y'], bloop['mirror x'], bloop['mirror Y'],
         #                         bloop['rotation'], bloop['padding'])
-                
-    def draw_not_adapt(self, looper=True):
-        return
 
     def draw_adapt(self, file, pattern_xy=(0, 0), mirror_x=1, mirror_y=1, rotation=0, padding=None):
         """
@@ -134,18 +131,19 @@ class Life:
 
         self.bordure = (np.array(self.bordure)+1).tolist()  # rajoute 1 a toute la valeur de self.bordure
 
-        if evolve[0].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:      # test s'il y a une ou plusieurs cellules en vie sur la première ligne
-            evolve = evolve[1:]       # retourne l'array substituer de la première ligne
-            self.bordure[0][0] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[-1].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:     # test s'il y a une ou plusieurs cellules en vie sur la première ligne
-            evolve = evolve[:-1]      # retourne l'array substituer de la première ligne
-            self.bordure[0][1] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[:, 0].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:   # test s'il y a une ou plusieurs cellules en vie sur la première ligne
-            evolve = evolve[:, 1:]    # retourne l'array substituer de la première ligne
-            self.bordure[1][0] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[:, -1].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
-            evolve = evolve[:, :-1]   # retourne l'array substituer de derni ère colonne
-            self.bordure[1][1] -= 1   # soustrait 1 a la valeur de la dernière colonne
+        for to in 'ab':
+            if evolve[0].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:      # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+                evolve = evolve[1:]       # retourne l'array substituer de la première ligne
+                self.bordure[0][0] -= 1   # soustrait 1 a la valeur de la première ligne
+            if evolve[-1].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:     # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+                evolve = evolve[:-1]      # retourne l'array substituer de la première ligne
+                self.bordure[0][1] -= 1   # soustrait 1 a la valeur de la première ligne
+            if evolve[:, 0].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:   # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+                evolve = evolve[:, 1:]    # retourne l'array substituer de la première ligne
+                self.bordure[1][0] -= 1   # soustrait 1 a la valeur de la première ligne
+            if evolve[:, -1].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
+                evolve = evolve[:, :-1]   # retourne l'array substituer de derni ère colonne
+                self.bordure[1][1] -= 1   # soustrait 1 a la valeur de la dernière colonne
 
         self.global_current_life = evolve.astype(int)
         # print(evolve, "\n", self.bordure, "\n", self.restricted_shape)
