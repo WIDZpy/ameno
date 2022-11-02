@@ -1,6 +1,7 @@
 # import numpy as np
 # import lemon_drop as tk_win
 # from matplotlib.pyplot import imshow, show
+import colorama as co
 import pygame as pg
 from simulation.gol import maraudersMap
 import aparecium
@@ -55,8 +56,6 @@ class GameOfLife:
 			self.pg_win.log('win size', self.pg_win.win.get_size())
 			clock.tick(60)
 
-			if pg.event.get(pg.QUIT):
-				program_run = False
 			self.pg_win.key_bord_input()
 			arr = self.game_of_life.get_life(True)
 			self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
@@ -70,6 +69,10 @@ class GameOfLife:
 			# if pg_win.run
 
 			frame_count += 1
+
+			if pg.event.get(pg.QUIT):
+				print("\n", co.Fore.RED + "END", sep='', end='')
+				program_run = False
 
 
 if __name__ == '__main__':

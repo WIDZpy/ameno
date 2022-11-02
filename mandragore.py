@@ -76,7 +76,6 @@ def readRLE(filename, c_shape=(50, 50)):
     line = np.zeros(colone.shape[-1]).astype(int)
     coef = ""
     q = 1
-    print(q)
 
     for loop in s:
 

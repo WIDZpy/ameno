@@ -80,6 +80,8 @@ class Win:
 		fiche un array dans la fenêtre pygame
 		:param world: l'array a afficher dans la fenêtre pygame
 		"""
+		self.log('camx', self.camX)
+
 		self.win_spec['length side'] = self.win.get_size()
 
 		world_size = world.shape
@@ -193,8 +195,8 @@ class Win:
 					self.touche = "alt + ↓"
 
 	def moov(self, x=0, y=0):
-		self.camX += round(x * self.win_spec['size of cells'])
-		self.camY += round(y * self.win_spec['size of cells'])
+		self.camX += mandragore.ceil_floor(x * self.win_spec['size of cells'])
+		self.camY += mandragore.ceil_floor(y * self.win_spec['size of cells'])
 
 	def zoom_corner(self, z):
 		new_size = mandragore.clamp(self.win_spec['size of cells'] + mandragore.ceil_floor((self.win_spec['size of cells'] * z) / 100), 1)
