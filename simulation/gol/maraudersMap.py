@@ -8,9 +8,11 @@ from matplotlib.pyplot import imshow, show
 
 class Life:
 
-    def __init__(self, shape=(1, 1), max_x_y=(400, 400)):
+    def __init__(self, shape=(1, 1), max_x_y=(400, 400), max_historic: int = 100):
         """
-        :param shape: size of the required array (if the pattern is larger than the output, the output takes it's size)
+        param shape: size of the required array (if the pattern is larger than the output, the output takes it's size)
+        :param max_x_y:
+        :param max_historic:
         """
         self.count = 0
         self.restricted_shape = shape
@@ -19,8 +21,11 @@ class Life:
         self.restricted_current_life = np.zeros(shape)
         self.bordure = [[0, 0], [0, 0]]  # ligne du haut, ligne du bas, colonne de gauche, colonne de droite
         self.max_x_y = max_x_y
+        self.max_historic = max_historic
         self.run = False
-        
+
+        self.historic = [(self.global_current_life, self.bordure, self.global_shape, self.count)]
+
         self.dictionaire = {
             'start_shape': shape,
             'max': self.max_x_y,
@@ -40,9 +45,6 @@ class Life:
 
         return self.global_current_life
 
-    def get_start_array(self):
-        return
-    
     def get_coordinates(self):
         print(np.array(np.where(self.restricted_current_life == 1)), type(self.restricted_current_life))
         return np.array(np.where(self.restricted_current_life == 1)).tolist()
@@ -54,6 +56,7 @@ class Life:
         v = self.restricted_current_life[cord]
         self.restricted_current_life[cord] = self.global_current_life[self.bordure[0][0]+cord[0],
                                                                       self.bordure[1][0]+cord[1]] = 0 if v else 1
+        self.update_start_historic()
 
     def load(self, dictionary):
         pass
@@ -66,6 +69,7 @@ class Life:
         #     for bloop in loop:
         #         self.draw_adapt(bloop['fill'], bloop['coordinate x y'], bloop['mirror x'], bloop['mirror Y'],
         #                         bloop['rotation'], bloop['padding'])
+        self.update_start_historic()
 
     def draw_adapt(self, file, pattern_xy=(0, 0), mirror_x=1, mirror_y=1, rotation=0, padding=None):
         """
@@ -109,17 +113,26 @@ class Life:
             self.restricted_current_life
 
         self.global_shape = self.global_current_life.shape
+        self.update_start_historic()
 
     def draw_random(self):
         self.global_current_life = lumos(self.global_shape[0], self.global_shape[1])
         self.restricted_current_life =\
             self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
                                      self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
+        self.update_start_historic()
+
+    def update_start_historic(self):
+        self.historic[0] = (self.global_current_life, self.bordure, self.global_shape, self.count)
+
+    def load_historic(self, index: int):
+        self.global_current_life, self.bordure, self.global_shape, self.count = self.historic[index]
 
 # ################################################# running #########################################################
 
     def evolve(self):
         if self.global_current_life.sum():
+
             self.count += 1
 
             sets = np.pad(self.global_current_life, np.ones((2, 2)).astype(int)*2)
@@ -144,12 +157,15 @@ class Life:
                 if evolve[:, -1].sum() == 0 or (self.max_x_y[1] <= evolve.shape[1] and self.bordure[1][1] >= self.bordure[1][0]):  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
                     evolve = evolve[:, :-1]   # retourne l'array substituer de derni ère colonne
                     self.bordure[1][1] -= 1   # soustrait 1 a la valeur de la dernière colonne
-                print(to, ':',  evolve.shape)
 
 
             self.global_current_life = evolve.astype(int)
             # print(evolve, "\n", self.bordure, "\n", self.restricted_shape)
             self.global_shape = self.global_current_life.shape
+
+            if len(self.historic) >= self.max_historic:
+                del self.historic[1]
+            self.historic.append((self.global_current_life, self.bordure, self.global_shape, self.count))
 
     def evolve_V1(self):
         
@@ -190,9 +206,15 @@ class Life:
     def pause(self):
         self.run = False
 
+    def back(self):
+        if len(self.historic) > 1:
+            del self.historic[-1]
+        self.load_historic(-1)
+
+
 
 if __name__ == '__main__':
-    life = Life((0, 0))
+    life = Life()
     # life.starte_adapt('canadagoose', (20, 0))
     life.draw_adapt('canadagoose', (0, 0))
     print(life.restricted_current_life)

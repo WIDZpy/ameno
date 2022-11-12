@@ -68,6 +68,12 @@ class Win:
 		return self.camX + self.win_spec['length side'][0] // 2, \
 			   self.camY + self.win_spec['length side'][1] // 2
 
+	def reset_cam(self):
+		self.camX = 0
+		self.camY = 0
+		self.decalage = 0, 0
+		self.win_spec['size of cells'] = 2 ** 9 // 2 ** 6
+
 	def log(self, *info):
 		self.log_var += "".join([f'{" | " if i % 2 == 0 else ": "}{info[i]}' for i in range(len(info))])
 		return self.log_var
@@ -132,6 +138,7 @@ class Win:
 		speed_zoom = 10
 		pressed = pg.key.get_pressed()
 		key_event = pg.event.get(pg.KEYDOWN)
+
 		# self.log("touche", self.touche)
 
 		if len(key_event) == 0 and not (pressed[pg.K_LCTRL] or pressed[pg.K_LALT]):
@@ -165,6 +172,11 @@ class Win:
 				if pressed[pg.K_LALT]:
 					self.moov(10)
 					self.touche = "alt + →"
+
+			if key.scancode == 100:
+				if pressed[pg.K_LCTRL]:
+					self.racoursit['restart']()
+					self.touche = "ctl + <"
 
 			if key.scancode == 80:
 				if pressed[pg.K_LCTRL]:

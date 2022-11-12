@@ -7,16 +7,18 @@ from simulation.gol import maraudersMap
 import aparecium
 
 
+
 class GameOfLife:
 	def __init__(self):
 		self.pg_win = aparecium.Win()
 		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7))
-		self.menu = aparecium.MenuContextuele(self.pg_win.win, 5, 20, (30, 30, 30))
+		self.menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, (30, 30, 30))
 		self.edit_mod = False
 
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
 		self.pg_win.racoursit['next'] = self.next_
 		self.pg_win.racoursit['prev'] = self.prev_
+		self.pg_win.racoursit['restart'] = self.restart_
 
 	def play_pause_(self):
 		if not self.game_of_life.run:
@@ -27,7 +29,7 @@ class GameOfLife:
 			self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
 
 	def prev_(self):
-		return
+		self.game_of_life.back()
 
 	def next_(self):
 		self.game_of_life.evolve()
@@ -35,11 +37,19 @@ class GameOfLife:
 	def edit_(self):
 		self.edit_mod = not self.edit_mod
 
+	def restart_(self):
+		self.game_of_life.pause()
+		self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
+		self.game_of_life.load_historic(0)
+		del self.game_of_life.historic[1:]
+		self.pg_win.reset_cam()
+
 	def mainloop(self):
 
-		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, ''],
+		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, 'ctl + <-'],
 								 ['textures/actions/play.png', 'play', self.play_pause_, 'space'],
-								 ['textures/buttons/next.png', 'next', self.next_, 'ctl + ->']]])
+								 ['textures/buttons/next.png', 'next', self.next_, 'ctl + ->'],
+								 ['textures/buttons/turnCCW.png', 'reset', self.restart_, "ctl + <"]]])
 
 		pg.init()
 		clock = pg.time.Clock()
@@ -47,12 +57,12 @@ class GameOfLife:
 		program_run = True
 
 		# self.game_of_life.point_and_clic((1,0))
-		# self.game_of_life.point_and_clic((0, 0))
-		# self.game_of_life.point_and_clic((0, 1))
-		# self.game_of_life.point_and_clic((1, 1))
-		# self.game_of_life.point_and_clic((1, 0))
+		self.game_of_life.point_and_clic((0, 0))
+		self.game_of_life.point_and_clic((0, 1))
+		self.game_of_life.point_and_clic((1, 1))
+		self.game_of_life.point_and_clic((1, 0))
 
-		# self.game_of_life.draw_adapt('canadagoose', (10, 10), rotation=2)
+		self.game_of_life.draw_adapt('canadagoose', (10, 10), rotation=2)
 		# self.game_of_life.draw_random()
 
 		self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
@@ -82,3 +92,4 @@ class GameOfLife:
 if __name__ == '__main__':
 	GOL = GameOfLife()
 	GOL.mainloop()
+
