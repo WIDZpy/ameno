@@ -26,12 +26,9 @@ class Win:
 			self.win_spec['border'] = 0
 			self.win_spec['pading'] = 0
 
-
-
 		if self.win_spec.get('resizable'):
 			self.win = pg.display.set_mode((self.win_spec['length side'][0],
 											self.win_spec['length side'][1]), pg.RESIZABLE)
-
 		else:
 			self.win = pg.display.set_mode((self.win_spec['length side'][0],
 											self.win_spec['length side'][1]))
@@ -44,8 +41,8 @@ class Win:
 
 		self.camX = 0
 		self.camY = 0
-		self.CellClr = (255, 255, 255)
-		self.BgClr = (0, 0, 0)
+		self.CellClr = (255, 255, 0)
+		self.BgClr = (0, 0, 255)
 		self.log_var = ''
 		self.touche = ''
 		self.decalage = 0, 0
@@ -80,7 +77,6 @@ class Win:
 		fiche un array dans la fenêtre pygame
 		:param world: l'array a afficher dans la fenêtre pygame
 		"""
-		self.log('camx', self.camX)
 
 		self.win_spec['length side'] = self.win.get_size()
 
@@ -136,7 +132,7 @@ class Win:
 		speed_zoom = 10
 		pressed = pg.key.get_pressed()
 		key_event = pg.event.get(pg.KEYDOWN)
-		self.log("touche", self.touche)
+		# self.log("touche", self.touche)
 
 		if len(key_event) == 0 and not (pressed[pg.K_LCTRL] or pressed[pg.K_LALT]):
 

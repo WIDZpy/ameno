@@ -11,3 +11,6 @@ Ceci est un projet GitHub mené par deux élèves de seconde (maintenant en prem
 > (l'avancement vidéo du projet est disponible sur [ma chaine youtube](https://www.youtube.com/channel/UCT_QKcMRP7_lV-DHLwTZCWg) !)
 
 ## fonctionnalités:
+
+- déplacement de la caméra (fléche directionnele)
+- 
