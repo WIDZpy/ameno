@@ -57,12 +57,20 @@ class GameOfLife:
 		else:
 			self.menu.section_lst[1].option_lst[0].set_caracteristic(image='textures/buttons/void.png')
 
+	def edit_mod_(self):
+		self.edit_mod = not self.edit_mod
+		if self.edit_mod:
+			self.menu.section_lst[1].option_lst[1].set_caracteristic(image='textures/buttons/chek.png')
+		else:
+			self.menu.section_lst[1].option_lst[1].set_caracteristic(image='textures/buttons/void.png')
+
 	def mainloop(self):
 		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, 'ctl + <-'],
 								 ['textures/actions/play.png', 'play', self.play_pause_, 'space'],
 								 ['textures/buttons/next.png', 'next', self.next_, 'ctl + ->'],
 								 ['textures/buttons/turnCCW.png', 'reset', self.restart_, "ctl + <"]],
-								[['textures/buttons/chek.png', 'info', self.afiche_info_, ""]]])
+								[['textures/buttons/chek.png', 'info', self.afiche_info_, ""],
+								 ['textures/buttons/void.png', 'edit mod', self.edit_mod_, ''], ]])
 
 		pg.init()
 		clock = pg.time.Clock()
@@ -70,13 +78,14 @@ class GameOfLife:
 		program_run = True
 
 		# self.game_of_life.point_and_clic((1,0))
-		self.game_of_life.point_and_clic((0, 0))
-		self.game_of_life.point_and_clic((0, 1))
-		self.game_of_life.point_and_clic((1, 1))
-		self.game_of_life.point_and_clic((1, 0))
-
-		self.game_of_life.draw_adapt('canadagoose', (10, 10), rotation=2)
+		# self.game_of_life.point_and_clic((0, 0))
+		# self.game_of_life.point_and_clic((0, 1))
+		# self.game_of_life.point_and_clic((1, 1))
+		# self.game_of_life.point_and_clic((1, 0))
+		# self.game_of_life.draw_adapt('canadagoose', (10, 10), rotation=2)
 		# self.game_of_life.draw_random()
+		self.game_of_life.draw_adapt('p5lumpsofmuckhassler', (10, 10), rotation=2)
+		self.game_of_life.draw_adapt('lobster', (50, 50), rotation=2)
 
 		self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
 
