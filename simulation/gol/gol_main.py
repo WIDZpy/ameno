@@ -18,6 +18,8 @@ class GameOfLife:
 		self.menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, color3)
 		self.data_display = aparecium.DataDisplay(color=uti.invertion_colorimetrique(color3), bgcolor=color3)
 		self.edit_mod = False
+		self.afiche_info = True
+
 
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
 		self.pg_win.racoursit['next'] = self.next_
@@ -48,12 +50,19 @@ class GameOfLife:
 		del self.game_of_life.historic[1:]
 		self.pg_win.reset_cam()
 
-	def mainloop(self):
+	def afiche_info_(self):
+		self.afiche_info = not self.afiche_info
+		if self.afiche_info:
+			self.menu.section_lst[1].option_lst[0].set_caracteristic(image='textures/buttons/chek.png')
+		else:
+			self.menu.section_lst[1].option_lst[0].set_caracteristic(image='textures/buttons/void.png')
 
+	def mainloop(self):
 		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, 'ctl + <-'],
 								 ['textures/actions/play.png', 'play', self.play_pause_, 'space'],
 								 ['textures/buttons/next.png', 'next', self.next_, 'ctl + ->'],
-								 ['', 'reset', self.restart_, "ctl + <"]]])
+								 ['textures/buttons/turnCCW.png', 'reset', self.restart_, "ctl + <"]],
+								[['textures/buttons/chek.png', 'info', self.afiche_info_, ""]]])
 
 		pg.init()
 		clock = pg.time.Clock()
@@ -87,7 +96,8 @@ class GameOfLife:
 				"nb de cellul": self.game_of_life.global_current_life.sum(),
 				"taile": self.game_of_life.global_shape,
 			})
-			self.data_display.draw(self.pg_win.win)
+			if self.afiche_info:
+				self.data_display.draw(self.pg_win.win)
 			# menu.show_menue(pg_win.win, (0, 0), 12, 20, (140,140,140))
 			print("\r", self.pg_win.log('fps', clock), end='')
 			self.pg_win.log_var = ''
@@ -103,4 +113,3 @@ class GameOfLife:
 if __name__ == '__main__':
 	GOL = GameOfLife()
 	GOL.mainloop()
-
