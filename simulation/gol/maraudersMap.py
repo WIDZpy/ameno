@@ -212,7 +212,6 @@ class Life:
         self.load_historic(-1)
 
 
-
 if __name__ == '__main__':
     life = Life()
     # life.starte_adapt('canadagoose', (20, 0))

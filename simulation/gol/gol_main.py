@@ -5,14 +5,18 @@ import colorama as co
 import pygame as pg
 from simulation.gol import maraudersMap
 import aparecium
-
+import mandragore as uti
 
 
 class GameOfLife:
 	def __init__(self):
-		self.pg_win = aparecium.Win()
-		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7))
-		self.menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, (30, 30, 30))
+		color1 = (255, 255, 255)
+		color2 = (0, 0, 0)
+		color3 = (30, 30, 30)
+		self.pg_win = aparecium.Win(color2, color1)
+		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7), max_historic=2000)
+		self.menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, color3)
+		self.data_display = aparecium.DataDisplay(color=uti.invertion_colorimetrique(color3), bgcolor=color3)
 		self.edit_mod = False
 
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
@@ -49,7 +53,7 @@ class GameOfLife:
 		self.menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, 'ctl + <-'],
 								 ['textures/actions/play.png', 'play', self.play_pause_, 'space'],
 								 ['textures/buttons/next.png', 'next', self.next_, 'ctl + ->'],
-								 ['textures/buttons/turnCCW.png', 'reset', self.restart_, "ctl + <"]]])
+								 ['', 'reset', self.restart_, "ctl + <"]]])
 
 		pg.init()
 		clock = pg.time.Clock()
@@ -76,17 +80,24 @@ class GameOfLife:
 			self.pg_win.aparecium(arr)
 
 			self.menu.menu_clasic_comportement_right_clic()
-			pg.display.update()
+
+			self.data_display.update_data({
+				"génération": self.game_of_life.count,
+				"fps": round(clock.get_fps()),
+				"nb de cellul": self.game_of_life.global_current_life.sum(),
+				"taile": self.game_of_life.global_shape,
+			})
+			self.data_display.draw(self.pg_win.win)
 			# menu.show_menue(pg_win.win, (0, 0), 12, 20, (140,140,140))
 			print("\r", self.pg_win.log('fps', clock), end='')
 			self.pg_win.log_var = ''
 			# if pg_win.run
-
 			frame_count += 1
 
 			if pg.event.get(pg.QUIT):
 				print("\n", co.Fore.RED + "END", sep='', end='')
 				program_run = False
+			pg.display.update()
 
 
 if __name__ == '__main__':

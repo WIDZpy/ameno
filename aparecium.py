@@ -11,7 +11,7 @@ import mandragore
 
 class Win:
 	void = lambda *x : None
-	def __init__(self):
+	def __init__(self, bgcolor=(0, 0, 0), colorcell=(255, 255, 255)):
 		self.win_spec = {
 			'title': "John Conway's Game of Life",
 			'length side': (2 ** 9, 2 ** 9),
@@ -41,8 +41,8 @@ class Win:
 
 		self.camX = 0
 		self.camY = 0
-		self.CellClr = (255, 255, 0)
-		self.BgClr = (0, 0, 255)
+		self.CellClr = colorcell
+		self.BgClr = bgcolor
 		self.log_var = ''
 		self.touche = ''
 		self.decalage = 0, 0
@@ -318,7 +318,7 @@ class MenuContextuele:
 			color_coef = 450
 
 			def __init__(self, image, name, function, short, width, size, color):
-				self.image = pg.image.load(image) if image != '' else ''
+				self.image = pg.image.load(image) if image != '' else pg.image.load('textures/buttons/void.png')
 				self.name = name
 				self.function = function
 				self.short = short
@@ -350,14 +350,9 @@ class MenuContextuele:
 			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
 
 				self.name = name if name is not None else self.name
-				self.image = pg.image.load(image) if image is not None else self.image
+				self.image = (pg.image.load(image) if image is not None else self.image) if image != '' else pg.image.load(textures/buttons/void.png)
 				self.short = short if short is not None else self.short
 				self.function = fonction if fonction is not None else self.function
-
-				self.name = name if name is not None else self.name
-				self.name = name if name is not None else self.name
-				self.name = name if name is not None else self.name
-				self.name = name if name is not None else self.name
 
 				self.update()
 
@@ -414,3 +409,51 @@ class MenuContextuele:
 				surface.blit(self.image.convert_alpha(), self.image_pos)
 				surface.blit(self.name_surf.convert_alpha(), self.name_rect)
 				surface.blit(self.short_surf.convert_alpha(), self.short_rect)
+
+
+class DataDisplay:
+	def __init__(self, data={}, mod='top_right',color=(255, 255, 255),bgcolor=(0, 0, 0),size=20):
+		# self.surf = pg.surface.Surface()
+		self.mod =  mod # bottom_left bottom_right top_left top_right
+		self.data = data
+		self.size = size
+		self.color = color
+		self.bgcolor = bgcolor
+
+	def update_data(self,dict: dict):
+		self.data.update(dict)
+
+
+	def draw(self,surface=None):
+		self.font_object = pg.font.Font('textures/SmallMemory.ttf', self.size)
+		self.string = "".join([f"  {cey}: {value}  " for cey, value in self.data.items()])
+		self.data_surf = self.font_object.render(self.string, True, self.color)
+		bg_surf = pg.surface.Surface(self.data_surf.get_size())
+		bg_surf.fill(self.bgcolor)
+		bg_surf.blit(self.data_surf,(0,0))
+
+		if self.mod == 'top_right':
+			surface.blit(bg_surf, (surface.get_size()[0]-(bg_surf.get_size()[0]), 5))
+		elif self.mod == 'top_left':
+			surface.blit(bg_surf, (0, 5))
+		elif self.mod == 'bottom_left':
+			surface.blit(bg_surf, (0, surface.get_size()[1]-bg_surf.get_size()[1]))
+		elif self.mod == 'bottom_right':
+			surface.blit(bg_surf, (surface.get_size()[0]-(self.size+5), 5))
+
+
+
+	# self.name_rect = self.name_surf.get_rect()
+	# self.name_rect.center = (self.pos[0] + xpos + self.name_rect[2] / 2, self.pos[1] + self.size / 2)
+
+
+
+
+if __name__ == '__main__':
+	pg.init()
+	A = DataDisplay({'a':1})
+	print(A.data)
+	A.update_data({"a":2,"B":2})
+	A.draw()
+	print(A.string)
+
