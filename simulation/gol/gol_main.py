@@ -20,7 +20,6 @@ class GameOfLife:
 		self.edit_mod = False
 		self.afiche_info = True
 
-
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
 		self.pg_win.racoursit['next'] = self.next_
 		self.pg_win.racoursit['prev'] = self.prev_
