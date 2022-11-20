@@ -1,11 +1,10 @@
 # import numpy as np
 # import lemon_drop as tk_win
-# from matplotlib.pyplot import imshow, show
-import colorama as co
+# from matplotlib.pyplot import imshow, showorama as co
 import pygame as pg
 from simulation.gol import maraudersMap
-import aparecium
-import mandragore as uti
+import cellular_automaton.aparecium as aparecium
+import cellular_automaton.mandragore as uti
 
 
 class GameOfLife:

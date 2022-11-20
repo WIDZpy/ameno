@@ -1,6 +1,5 @@
 import numpy as np
-from mandragore import readRLE, lumos
-import json
+from cellular_automaton.mandragore import readRLE, lumos
 from matplotlib.pyplot import imshow, show
 
 '''les calcule'''
