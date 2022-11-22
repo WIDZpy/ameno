@@ -7,26 +7,24 @@ from matplotlib.pyplot import imshow, show
 
 class Life:
 
-    def __init__(self, shape=(1, 1), max_x_y=(400, 400), max_historic: int = 100):
+    def __init__(self, max_x_y=(400, 400), max_historic: int = 100):
         """
         param shape: size of the required array (if the pattern is larger than the output, the output takes it's size)
         :param max_x_y:
         :param max_historic:
         """
         self.count = 0
-        self.restricted_shape = shape
-        self.global_shape = shape
-        self.global_current_life = np.zeros(shape)
-        self.restricted_current_life = np.zeros(shape)
+        self.shape = 1, 1
+        self.current_gen = np.zeros(self.shape)
         self.bordure = [[0, 0], [0, 0]]  # ligne du haut, ligne du bas, colonne de gauche, colonne de droite
         self.max_x_y = max_x_y
         self.max_historic = max_historic
         self.run = False
 
-        self.historic = [(self.global_current_life, self.bordure, self.global_shape, self.count)]
+        self.historic = [(self.current_gen, self.bordure, self.shape, self.count)]
 
         self.dictionaire = {
-            'start_shape': shape,
+            'start_shape': self.shape,
             'max': self.max_x_y,
             'iport_patern': {
                 'patern_1': {
@@ -42,19 +40,14 @@ class Life:
         if self.run and evolve:
             self.evolve()
 
-        return self.global_current_life
-
-    def get_coordinates(self):
-        print(np.array(np.where(self.restricted_current_life == 1)), type(self.restricted_current_life))
-        return np.array(np.where(self.restricted_current_life == 1)).tolist()
+        return self.current_gen
         
 #   ################################################## edit ###########################################################
     
     def point_and_clic(self, cord):
-        cord = cord[1], cord[0]
-        v = self.restricted_current_life[cord]
-        self.restricted_current_life[cord] = self.global_current_life[self.bordure[0][0]+cord[0],
-                                                                      self.bordure[1][0]+cord[1]] = 0 if v else 1
+        cord = self.bordure[0][0] + cord[1], self.bordure[1][0] + cord[0]
+        v = self.current_gen[cord]
+        self.current_gen[cord] = v ^ 1
         self.update_start_historic()
 
     def load(self, dictionary):
@@ -70,7 +63,7 @@ class Life:
         #                         bloop['rotation'], bloop['padding'])
         self.update_start_historic()
 
-    def draw_adapt(self, file, pattern_xy=(0, 0), mirror_x=1, mirror_y=1, rotation=0, padding=None):
+    def draw_adapt(self, file, pattern_xy=(0, 0), mirror_x=1, mirror_y=1, rotation=0):
         """
         :param file: Read the RLE file on the website 'https://conwaylife.com/wiki/Category:Patterns'
         :param pattern_xy: coordinates of the point (0;0) on the main array (default is (0,0))
@@ -81,62 +74,40 @@ class Life:
         :return:
         """
         # definition des varibles :
-        if padding is None:
-            padding = [[0, 0], [0, 0]]
-        padding = np.flip(padding, 0)
+        
         rle = np.rot90(readRLE(file), 0-rotation)
-        rlesize = rle.shape
-        # t_x = 1
-        # t_y = 1
 
-        self.restricted_shape = (self.restricted_shape[0] if
-                                 self.restricted_shape[0] >= rlesize[0] + pattern_xy[1] else rlesize[0] + pattern_xy[1],
-                                 self.restricted_shape[1] if
-                                 self.restricted_shape[1] >= rlesize[1] + pattern_xy[0] else rlesize[1] + pattern_xy[0])
+        bidul = (slice(pattern_xy[1], pattern_xy[1] + rle.shape[0]),
+                 slice(pattern_xy[0], pattern_xy[0] + rle.shape[1]))
 
-        self.restricted_current_life = np.pad(self.restricted_current_life,
-                                              [[0, self.restricted_shape[0] - self.restricted_current_life.shape[0]],
-                                               [0, self.restricted_shape[1] - self.restricted_current_life.shape[1]]])
+        self.current_gen[bidul] = rle[::mirror_y, ::mirror_x]
 
-        bidul = (pattern_xy[1], pattern_xy[1] + rlesize[0],
-                 pattern_xy[0], pattern_xy[0] + rlesize[1])
-
-        self.restricted_current_life[bidul[0]:bidul[1], bidul[2]:bidul[3]] = rle[::mirror_y, ::mirror_x]
-        self.restricted_current_life = np.pad(self.restricted_current_life, padding)
-
-        self.restricted_shape = self.restricted_current_life.shape
-
-        self.global_current_life = np.zeros(self.restricted_shape)
-        self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
-                                 self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]] =\
-            self.restricted_current_life
-
-        self.global_shape = self.global_current_life.shape
+        self.shape = self.current_gen.shape
         self.update_start_historic()
 
     def draw_random(self):
-        self.global_current_life = lumos(self.global_shape[0], self.global_shape[1])
-        self.restricted_current_life =\
-            self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
+        self.current_gen = lumos(self.shape[0], self.shape[1])
+        self.restricted_current_life = \
+            self.current_gen[self.bordure[0][0]:self.bordure[0][0] + self.restricted_shape[0],
                                      self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
         self.update_start_historic()
 
     def update_start_historic(self):
-        self.historic[0] = (self.global_current_life, self.bordure, self.global_shape, self.count)
+        self.historic[0] = (self.current_gen, self.bordure, self.shape, self.count)
 
     def load_historic(self, index: int):
-        self.global_current_life, self.bordure, self.global_shape, self.count = self.historic[index]
+        self.current_gen, self.bordure, self.shape, self.count = self.historic[index]
 
 # ################################################# running #########################################################
 
     def evolve(self):
-        if self.global_current_life.sum():
+        if self.current_gen.sum():
 
             self.count += 1
 
-            sets = np.pad(self.global_current_life, np.ones((2, 2)).astype(int)*2)
+            sets = np.pad(self.current_gen, np.ones((2, 2)).astype(int) * 2)
             # sets = self.current_gen
-            evolve = np.pad(np.zeros(self.global_shape).astype(int), np.ones((2, 2)).astype(int))
+            evolve = np.pad(np.zeros(self.shape).astype(int), np.ones((2, 2)).astype(int))
             evolve[:, :] = (sets[:-2, :-2] + sets[:-2, 1:-1] + sets[:-2, 2:] + sets[1:-1, :-2] +
                             sets[1:-1, 2:] + sets[2:, :-2] + sets[2:, 1:-1] + sets[2:, 2:])
             evolve = np.logical_or(evolve == 3, np.logical_and(sets[1:-1, 1:-1] == 1, evolve == 2)).astype(int)
@@ -158,45 +129,45 @@ class Life:
                     self.bordure[1][1] -= 1   # soustrait 1 a la valeur de la dernière colonne
 
 
-            self.global_current_life = evolve.astype(int)
+            self.current_gen = evolve.astype(int)
             # print(evolve, "\n", self.bordure, "\n", self.restricted_shape)
-            self.global_shape = self.global_current_life.shape
+            self.shape = self.current_gen.shape
 
             if len(self.historic) >= self.max_historic:
                 del self.historic[1]
-            self.historic.append((self.global_current_life, self.bordure, self.global_shape, self.count))
+            self.historic.append((self.current_gen, self.bordure, self.shape, self.count))
 
     def evolve_V1(self):
         
         self.count += 1
         
-        sets = np.pad(self.global_current_life, np.ones((2, 2)).astype(int)*2)
+        sets = np.pad(self.current_gen, np.ones((2, 2)).astype(int) * 2)
         # sets = self.current_gen
-        evolve = np.pad(np.zeros(self.global_shape).astype(int), np.ones((2, 2)).astype(int))
+        evolve = np.pad(np.zeros(self.shape).astype(int), np.ones((2, 2)).astype(int))
         evolve[:, :] = (sets[:-2, :-2] + sets[:-2, 1:-1] + sets[:-2, 2:] + sets[1:-1, :-2] +
                         sets[1:-1, 2:] + sets[2:, :-2] + sets[2:, 1:-1] + sets[2:, 2:])
         evolve = np.logical_or(evolve == 3, np.logical_and(sets[1:-1, 1:-1] == 1, evolve == 2)).astype(int)
 
         self.bordure = (np.array(self.bordure)+1).tolist()  # rajoute 1 a toute la valeur de self.bordure
         
-        if evolve[0].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:      # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+        if evolve[0].sum() == 0 or self.max_x_y[0] <= self.shape[0]:      # test s'il y a une ou plusieurs cellules en vie sur la première ligne
             evolve = evolve[1:]       # retourne l'array substituer de la première ligne
             self.bordure[0][0] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[-1].sum() == 0 or self.max_x_y[0] <= self.global_shape[0]:     # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+        if evolve[-1].sum() == 0 or self.max_x_y[0] <= self.shape[0]:     # test s'il y a une ou plusieurs cellules en vie sur la première ligne
             evolve = evolve[:-1]      # retourne l'array substituer de la première ligne
             self.bordure[0][1] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[:, 0].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:   # test s'il y a une ou plusieurs cellules en vie sur la première ligne
+        if evolve[:, 0].sum() == 0 or self.max_x_y[1] <= self.shape[1]:   # test s'il y a une ou plusieurs cellules en vie sur la première ligne
             evolve = evolve[:, 1:]    # retourne l'array substituer de la première ligne
             self.bordure[1][0] -= 1   # soustrait 1 a la valeur de la première ligne
-        if evolve[:, -1].sum() == 0 or self.max_x_y[1] <= self.global_shape[1]:  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
+        if evolve[:, -1].sum() == 0 or self.max_x_y[1] <= self.shape[1]:  # test s'il y a une ou plusieurs cellules en vie sur dernière colonne
             evolve = evolve[:, :-1]   # retourne l'array substituer de derni ère colonne
             self.bordure[1][1] -= 1   # soustrait 1 a la valeur de la dernière colonne
             
-        self.global_current_life = evolve.astype(int)
+        self.current_gen = evolve.astype(int)
         # print(evolve, "\n", self.bordure, "\n", self.restricted_shape)
-        self.global_shape = self.global_current_life.shape
+        self.shape = self.current_gen.shape
         self.restricted_current_life\
-            = self.global_current_life[self.bordure[0][0]:self.bordure[0][0]+self.restricted_shape[0],
+            = self.current_gen[self.bordure[0][0]:self.bordure[0][0] + self.restricted_shape[0],
                                        self.bordure[1][0]:self.bordure[1][0]+self.restricted_shape[1]]
 
     def play(self):

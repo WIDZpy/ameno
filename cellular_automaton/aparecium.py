@@ -100,13 +100,12 @@ class Win:
 			   mandragore.clamp(ceil(dec_x / self.win_spec['size of cells']) + ceil(self.win_spec['length side'][0] / self.win_spec['size of cells']), 0,
 								world_size[1])]
 
-		view_cordantate = np.array(np.where(view == 1)).tolist()
 
 		decalage_x = dec_x % self.win_spec['size of cells'] if dec_x > 0 else dec_x
 		decalage_y = dec_y % self.win_spec['size of cells'] if dec_y > 0 else dec_y
 
 
-		for cy, cx in zip(*view_cordantate):
+		for cy, cx in zip(*mandragore.get_coordinates(view, 1)):
 			pg.draw.rect(self.win, self.CellClr, (cx * self.win_spec['size of cells'] - decalage_x,
 												  cy * self.win_spec['size of cells'] - decalage_y,
 												  self.win_spec['size of cells'], self.win_spec['size of cells']))

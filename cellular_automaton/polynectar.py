@@ -1,19 +1,16 @@
-# import numpy as np
-# import lemon_drop as tk_win
-# from matplotlib.pyplot import imshow, showorama as co
+import colorama as co
 import pygame as pg
 from simulation.gol import maraudersMap
-import cellular_automaton.aparecium as aparecium
-import cellular_automaton.mandragore as uti
+from cellular_automaton import aparecium, mandragore as uti, maraudersMap
 
 
-class GameOfLife:
+class CellularMain:
 	def __init__(self):
 		color1 = (255, 255, 255)
 		color2 = (0, 0, 0)
 		color3 = (30, 30, 30)
 		self.pg_win = aparecium.Win(color2, color1)
-		self.game_of_life = maraudersMap.Life((2 ** 7, 2 ** 7), max_historic=2000)
+		self.simulation = maraudersMap.Life((2 ** 7, 2 ** 7), max_historic=2000)
 		self.menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, color3)
 		self.data_display = aparecium.DataDisplay(color=uti.invertion_colorimetrique(color3), bgcolor=color3)
 		self.edit_mod = False
@@ -25,27 +22,27 @@ class GameOfLife:
 		self.pg_win.racoursit['restart'] = self.restart_
 
 	def play_pause_(self):
-		if not self.game_of_life.run:
-			self.game_of_life.play()
+		if not self.simulation.run:
+			self.simulation.play()
 			self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/pause.png', name='pause')
 		else:
-			self.game_of_life.pause()
+			self.simulation.pause()
 			self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
 
 	def prev_(self):
-		self.game_of_life.back()
+		self.simulation.back()
 
 	def next_(self):
-		self.game_of_life.evolve()
+		self.simulation.evolve()
 
 	def edit_(self):
 		self.edit_mod = not self.edit_mod
 
 	def restart_(self):
-		self.game_of_life.pause()
+		self.simulation.pause()
 		self.menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
-		self.game_of_life.load_historic(0)
-		del self.game_of_life.historic[1:]
+		self.simulation.load_historic(0)
+		del self.simulation.historic[1:]
 		self.pg_win.reset_cam()
 
 	def afiche_info_(self):
@@ -82,26 +79,26 @@ class GameOfLife:
 		# self.simulation.point_and_clic((1, 0))
 		# self.simulation.draw_adapt('canadagoose', (10, 10), rotation=2)
 		# self.simulation.draw_random()
-		self.game_of_life.draw_adapt('p5lumpsofmuckhassler', (10, 10), rotation=2)
-		self.game_of_life.draw_adapt('lobster', (50, 50), rotation=2)
+		self.simulation.draw_adapt('p5lumpsofmuckhassler', (10, 10), rotation=2)
+		self.simulation.draw_adapt('lobster', (50, 50), rotation=2)
 
-		self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
+		self.pg_win.set_decalage(self.simulation.bordure[0][0], self.simulation.bordure[1][0])
 
 		while program_run:
 			clock.tick(60)
 
 			self.pg_win.key_bord_input()
-			arr = self.game_of_life.get_life(True)
-			self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
+			arr = self.simulation.get_life(True)
+			self.pg_win.set_decalage(self.simulation.bordure[0][0], self.simulation.bordure[1][0])
 			self.pg_win.aparecium(arr)
 
 			self.menu.menu_clasic_comportement_right_clic()
 
 			self.data_display.update_data({
-				"génération": self.game_of_life.count,
+				"génération": self.simulation.count,
 				"fps": round(clock.get_fps()),
-				"nb de cellul": self.game_of_life.global_current_life.sum(),
-				"taile": self.game_of_life.global_shape,
+				"nb de cellul": self.simulation.current_gen.sum(),
+				"taile": self.simulation.shape,
 			})
 			if self.afiche_info:
 				self.data_display.draw(self.pg_win.win)
@@ -118,5 +115,4 @@ class GameOfLife:
 
 
 if __name__ == '__main__':
-	GOL = GameOfLife()
-	GOL.mainloop()
+	A = CellularMain()
