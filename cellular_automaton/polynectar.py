@@ -82,14 +82,14 @@ class CellularMain:
 		self.simulation.draw_adapt('p5lumpsofmuckhassler', (10, 10), rotation=2)
 		self.simulation.draw_adapt('lobster', (50, 50), rotation=2)
 
-		self.pg_win.set_decalage(self.simulation.bordure[0][0], self.simulation.bordure[1][0])
+		self.pg_win.set_decalage(self.simulation.array_pos[0][0], self.simulation.array_pos[1][0])
 
 		while program_run:
 			clock.tick(60)
 
 			self.pg_win.key_bord_input()
 			arr = self.simulation.get_life(True)
-			self.pg_win.set_decalage(self.simulation.bordure[0][0], self.simulation.bordure[1][0])
+			self.pg_win.set_decalage(self.simulation.array_pos[0][0], self.simulation.array_pos[1][0])
 			self.pg_win.aparecium(arr)
 
 			self.menu.menu_clasic_comportement_right_clic()

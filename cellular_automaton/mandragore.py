@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+import pygame as pg
 import numpy as np
 import random as rnd
 import math
@@ -117,6 +119,7 @@ def readRLE(filename, c_shape=(50, 50)):
 def invertion_colorimetrique(c):
     return ((255 - np.array(c)) % 255).tolist()
 
-
 def get_coordinates(array, valu=1):
     return np.array(np.where(array == valu)).tolist()
+
+
