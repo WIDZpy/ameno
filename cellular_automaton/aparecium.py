@@ -45,7 +45,7 @@ class Win:
 		self.BgClr = bgcolor
 		self.log_var = ''
 		self.touche = ''
-		self.decalage = 0, 0
+		self.array_pos = 0, 0
 
 
 
@@ -57,8 +57,8 @@ class Win:
 
 		return
 
-	def set_decalage(self, x, y):
-		self.decalage = x, y
+	def set_array_pos(self, x, y):
+		self.array_pos = x, y
 
 	def set_center(self, x, y):
 		self.camX = x - self.win_spec['length side'][0] // 2
@@ -71,7 +71,7 @@ class Win:
 	def reset_cam(self):
 		self.camX = 0
 		self.camY = 0
-		self.decalage = 0, 0
+		self.array_pos = 0, 0
 		self.win_spec['size of cells'] = 2 ** 9 // 2 ** 6
 
 	def log(self, *info):
@@ -90,8 +90,8 @@ class Win:
 
 		self.win.fill(self.BgClr)
 
-		dec_y = self.camY + self.decalage[0] * self.win_spec['size of cells']
-		dec_x = self.camX + self.decalage[1] * self.win_spec['size of cells']
+		dec_y = self.camY - self.array_pos[1] * self.win_spec['size of cells']
+		dec_x = self.camX - self.array_pos[0] * self.win_spec['size of cells']
 
 		view = world[mandragore.clamp(dec_y // self.win_spec['size of cells'], 0, world_size[0]):
 					 mandragore.clamp(ceil(dec_y / self.win_spec['size of cells']) + ceil(self.win_spec['length side'][1] / self.win_spec['size of cells']),
@@ -440,19 +440,22 @@ class DataDisplay:
 		elif self.mod == 'bottom_right':
 			surface.blit(bg_surf, (surface.get_size()[0]-(self.size+5), 5))
 
-
-
-	# self.name_rect = self.name_surf.get_rect()
-	# self.name_rect.center = (self.pos[0] + xpos + self.name_rect[2] / 2, self.pos[1] + self.size / 2)
-
-
-
-
 if __name__ == '__main__':
 	pg.init()
-	A = DataDisplay({'a':1})
-	print(A.data)
-	A.update_data({"a":2,"B":2})
-	A.draw()
-	print(A.string)
+	color1 = (255, 255, 255)
+	color2 = (0, 0, 0)
+	pg_win = Win(color2, color1)
+	clock = pg.time.Clock()
+
+	pg_win.set_array_pos(-1,4)
+
+	while True:
+		clock.tick(60)
+
+		if pg.event.get(pg.QUIT):
+			# print("\n", co.Fore.RED + "END", sep='', end='')
+			break
+		pg.display.update()
+		pg_win.aparecium(np.array([[1,0,1],[1,1,1],[0,0,1]]))
+
 
