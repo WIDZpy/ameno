@@ -53,7 +53,7 @@ def readRLE(filename, c_shape=(50, 50)):
     '''la fonction qui permet de lire les rle'''
     if filename == 1:
         return np.zeros(c_shape).astype(int)
-    filename = "simulation/gol/rle/" + filename + ".rle"
+    filename = "simulations/gol/rle/" + filename + ".rle"
     f = open(filename, "r")
     s = ''
     while True:

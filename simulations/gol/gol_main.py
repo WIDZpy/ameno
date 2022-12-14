@@ -2,7 +2,7 @@
 # import lemon_drop as tk_win
 # from matplotlib.pyplot import imshow, showorama as co
 import pygame as pg
-from simulation.gol import maraudersMap
+from simulations.gol import maraudersMap
 import cellular_automaton.aparecium as aparecium
 import cellular_automaton.mandragore as uti
 
@@ -75,15 +75,15 @@ class GameOfLife:
 		frame_count = 0
 		program_run = True
 
-		# self.simulation.point_and_clic((1,0))
-		# self.simulation.point_and_clic((0, 0))
-		# self.simulation.point_and_clic((0, 1))
-		# self.simulation.point_and_clic((1, 1))
-		# self.simulation.point_and_clic((1, 0))
-		# self.simulation.draw_adapt('canadagoose', (10, 10), rotation=2)
-		# self.simulation.draw_random()
-		self.game_of_life.draw_adapt('p5lumpsofmuckhassler', (10, 10), rotation=2)
-		self.game_of_life.draw_adapt('lobster', (50, 50), rotation=2)
+		# self.simulations.point_and_clic((1,0))
+		# self.simulations.point_and_clic((0, 0))
+		# self.simulations.point_and_clic((0, 1))
+		# self.simulations.point_and_clic((1, 1))
+		# self.simulations.point_and_clic((1, 0))
+		# self.simulations.draw_adapt('canadagoose', (10, 10), rotation=2)
+		# self.simulations.draw_random()
+		self.game_of_life.draw_adapt('spacefiller1', (10, 10), rotation=2)
+		self.game_of_life.draw_adapt('lobster', (80, 80), rotation=2)
 
 		self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
 
@@ -102,6 +102,7 @@ class GameOfLife:
 				"fps": round(clock.get_fps()),
 				"nb de cellul": self.game_of_life.global_current_life.sum(),
 				"taile": self.game_of_life.global_shape,
+				'array_pos': self.game_of_life.bordure,
 			})
 			if self.afiche_info:
 				self.data_display.draw(self.pg_win.win)

@@ -1,9 +1,7 @@
-import simulation as simulation
-import simulation.gol.gol_main
+from simulations.model import main as simulation
 
 
 def main():
-	simulation.init_gol()
 	simulation.simu.mainloop()
 
 

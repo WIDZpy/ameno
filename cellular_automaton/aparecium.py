@@ -11,7 +11,7 @@ import cellular_automaton.mandragore as mandragore
 
 class Win:
 	void = lambda *x : None
-	def __init__(self, bgcolor=(0, 0, 0), colorcell=(255, 255, 255)):
+	def __init__(self, bgcolor=(0, 0, 0), colorcell=(255, 255, 255), logo: str = False ):
 		self.win_spec = {
 			'title': "John Conway's Game of Life",
 			'length side': (2 ** 9, 2 ** 9),
@@ -35,7 +35,7 @@ class Win:
 
 
 		self.winPrevMousePos = pg.mouse.get_pos()
-		pg.display.set_icon(pygame.image.load('textures/logo.png'))
+		pg.display.set_icon(pygame.image.load(logo)) if logo else None
 		pg.display.set_caption(self.win_spec['title'])
 		pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
@@ -52,7 +52,8 @@ class Win:
 		self.racoursit = {
 			'play/pause': Win.void,
 			'next': Win.void,
-			'prev': Win.void
+			'prev': Win.void,
+			'restart': Win.void,
 		}
 
 		return

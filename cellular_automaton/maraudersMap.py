@@ -5,10 +5,9 @@ from matplotlib.pyplot import imshow, show
 '''les calcule'''
 
 
+class Automaton:
 
-class Life:
-
-    def __init__(self, max_x_y=(400, 400), max_historic: int = 100):
+    def __init__(self, max_x_y: tuple[int, int] = (400, 400), max_historic: int = 100):
         """
         :param max_x_y:
         :param max_historic:
@@ -35,7 +34,7 @@ class Life:
 
 #   ################################################## getter ##########################################################
 
-    def get_curent_gen(self, evolve=False):
+    def get_curent_gen(self, evolve: bool = False):
 
         if self.run and evolve:
             self.evolve()
