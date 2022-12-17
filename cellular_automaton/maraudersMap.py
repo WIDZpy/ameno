@@ -1,6 +1,5 @@
 import numpy as np
-from cellular_automaton.mandragore import readRLE, lumos
-from matplotlib.pyplot import imshow, show
+
 
 '''les calcule'''
 
@@ -20,7 +19,7 @@ class Automaton:
         self.max_historic = max_historic
         self.run = False
 
-        self.historic = [(self.current_gen, self.array_pos, self.shape, self.count)]
+        self.historic = [(self.current_gen.copy(), self.array_pos.copy(), self.shape.copy(), self.count)]
 
         self.dictionaire = {
             'start_shape': self.shape,
@@ -50,6 +49,11 @@ class Automaton:
         self.update_start_historic()
 
     def load(self, dictionary):
+        """
+        :param dictionary:
+        :return:
+        """
+
         pass
         # self.restricted_shape = self.shape = dictionary['start_shape']
         # self.current_gen = self.restricted_current_life = np.zeros(self.restricted_shape)
@@ -75,9 +79,7 @@ class Automaton:
                 pading[_][1] = rect[_].stop - self.shape[_] - self.array_pos[_]
                 self.shape[_] += rect[_].stop - self.shape[_]
 
-
             result += (slice(rect[_].start - self.array_pos[_], rect[_].stop - self.array_pos[_]),)
-        print(pading)
         self.current_gen = np.pad(self.current_gen, pading)
 
         return result
@@ -95,15 +97,61 @@ class Automaton:
         self.update_start_historic()
 
     def update_start_historic(self):
-        self.historic[0] = (self.current_gen, self.array_pos, self.shape, self.count)
+        self.historic[0] = (self.current_gen, [0, 0], self.shape.copy(), self.count)
+
+    def add_histoic(self):
+        if len(self.historic) >= self.max_historic:
+            del self.historic[1]
+        self.historic.append((self.current_gen, self.array_pos.copy(), self.shape.copy(), self.count))
 
     def evolve(self):
         return
 
+    def crop_gen(self):
+        if self.current_gen[0].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0-self.array_pos[0] >= self.shape[0]+self.array_pos[0]):
+            self.current_gen = self.current_gen[1:]
+            self.array_pos[0] += 1
+            self.shape[0] -= 1
+
+            if self.current_gen[0].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0 - self.array_pos[0] >= self.shape[0] + self.array_pos[0]):
+                self.current_gen = self.current_gen[1:]
+                self.array_pos[0] += 1
+                self.shape[0] -= 1
+
+        if self.current_gen[-1].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0-self.array_pos[0] <= self.shape[0]+self.array_pos[0]):
+            self.current_gen = self.current_gen[:-1]
+            self.shape[0] -= 1
+
+            if self.current_gen[-1].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0 - self.array_pos[0] <= self.shape[0] + self.array_pos[0]):
+                self.current_gen = self.current_gen[:-1]
+                self.shape[0] -= 1
+
+        if self.current_gen[:, 0].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0-self.array_pos[1] >= self.shape[1]+self.array_pos[1]):
+            self.current_gen = self.current_gen[:, 1:]
+            self.array_pos[1] += 1
+            self.shape[1] -= 1
+
+            if self.current_gen[:, 0].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] >= self.shape[1] + self.array_pos[1]):
+                self.current_gen = self.current_gen[:, 1:]
+                self.array_pos[1] += 1
+                self.shape[1] -= 1
+
+        if self.current_gen[:, -1].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] <= self.shape[1] + self.array_pos[1]):
+            self.current_gen = self.current_gen[:, :-1]
+            self.shape[1] -= 1
+
+            if self.current_gen[:, -1].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] <= self.shape[1] + self.array_pos[1]):
+                self.current_gen = self.current_gen[:, :-1]
+                self.shape[1] -= 1
+
 # ################################################# running #########################################################
 
     def load_historic(self, index: int):
-        self.current_gen, self.array_pos, self.shape, self.count = self.historic[index]
+
+        self.current_gen = self.historic[index][0]
+        self.array_pos = self.historic[index][1].copy()
+        self.shape = self.historic[index][2]
+        self.count = self.historic[index][3]
 
     def play(self):
         self.run = True
@@ -118,12 +166,6 @@ class Automaton:
 
 
 if __name__ == '__main__':
-    life = Life()
-    # life.starte_adapt('canadagoose', (20, 0))
-    life.draw_array(np.array([[1,1],[0,1],[1,3]]), (-10,10))
-    print(life.current_gen)
-
-    for loop in range(0):
-        life.evolve()
-    imshow(life.current_gen)
-    show()
+    pass
+    life = Automaton()
+    life.draw_array(np.array([[0, 1], [1, 0]]), 10, 10)

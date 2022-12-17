@@ -119,7 +119,15 @@ def readRLE(filename, c_shape=(50, 50)):
 def invertion_colorimetrique(c):
     return ((255 - np.array(c)) % 255).tolist()
 
+
 def get_coordinates(array, valu=1):
     return np.array(np.where(array == valu)).tolist()
+
+
+def neightbor_array(ar: np.array):
+    sets = np.pad(ar, np.ones((2, 2)).astype(int) * 2)
+
+    return (sets[:-2, :-2] + sets[:-2, 1:-1] + sets[:-2, 2:] + sets[1:-1, :-2] +
+             sets[1:-1, 2:] + sets[2:, :-2] + sets[2:, 1:-1] + sets[2:, 2:])
 
 

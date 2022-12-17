@@ -11,7 +11,7 @@ import cellular_automaton.mandragore as mandragore
 
 class Win:
 	void = lambda *x : None
-	def __init__(self, bgcolor=(0, 0, 0), colorcell=(255, 255, 255), logo: str = False ):
+	def __init__(self, logo: str = False ):
 		self.win_spec = {
 			'title': "John Conway's Game of Life",
 			'length side': (2 ** 9, 2 ** 9),
@@ -41,8 +41,8 @@ class Win:
 
 		self.camX = 0
 		self.camY = 0
-		self.CellClr = colorcell
-		self.BgClr = bgcolor
+		self.CellClr = 0,0,0
+		self.BgClr = 0,0,0
 		self.log_var = ''
 		self.touche = ''
 		self.array_pos = 0, 0

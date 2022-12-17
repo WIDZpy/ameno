@@ -3,9 +3,7 @@ from cellular_automaton import polynectar, aparecium, maraudersMap
 
 class Main(polynectar.CellularMain):
 	def __init__(self):
-		super(Main, self).__init__()
-		self.simulation = Logic()
-		self.pg_win = Display()
+		super(Main, self).__init__(Display(), Logic())
 
 	def mainloop(self):
 		while self.main_loop_condition:

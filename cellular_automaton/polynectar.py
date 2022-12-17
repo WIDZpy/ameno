@@ -1,20 +1,20 @@
 import colorama as co
 import pygame as pg
-from simulations.gol import maraudersMap
 from cellular_automaton import aparecium, mandragore as uti, maraudersMap
 
 
 class CellularMain:
 	def __init__(self,
+				 pg_win=aparecium.Win(),
+				 simulation=maraudersMap.Automaton(),
 				 color1: tuple[int, int, int] = (255, 255, 255),
 				 color2: tuple[int, int, int] = (0, 0, 0),
-				 color3: tuple[int, int, int] = (30, 30, 30),
-				 ):
+				 color3: tuple[int, int, int] = (30, 30, 30)):
 
 		pg.init()
 
-		self.pg_win = aparecium.Win(color2, color1)
-		self.simulation = maraudersMap.Automaton((2 ** 7, 2 ** 7), max_historic=2000)
+		self.pg_win = pg_win
+		self.simulation = simulation
 		self.clock = pg.time.Clock()
 		self.menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, color3)
 		self.data_display = aparecium.DataDisplay(color=uti.invertion_colorimetrique(color3), bgcolor=color3)
@@ -23,6 +23,8 @@ class CellularMain:
 		self.edit_mod = False
 		self.affiche_info = True
 
+		self.pg_win.CellClr = color1
+		self.pg_win.BgClr = color2
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
 		self.pg_win.racoursit['next'] = self.next_
 		self.pg_win.racoursit['prev'] = self.prev_
@@ -77,8 +79,6 @@ class CellularMain:
 		self.clock.tick(60)
 
 		self.pg_win.key_bord_input()
-		if self.affiche_info:
-			self.data_display.draw(self.pg_win.win)
 
 		arr = self.simulation.get_curent_gen(True)
 
@@ -95,7 +95,10 @@ class CellularMain:
 			"taile": self.simulation.shape,
 		})
 
-		# print("\r", self.pg_win.log('fps', clock), end='')
+		if self.affiche_info:
+			self.data_display.draw(self.pg_win.win)
+
+		# print("\r", self.pg_win.log('fps', self.clock), end='')
 		self.pg_win.log_var = ''
 
 		if pg.event.get(pg.QUIT):
@@ -113,6 +116,7 @@ class CellularMain:
 
 if __name__ == '__main__':
 	import numpy as np
+
 	A = CellularMain()
 	A.simulation.draw_array(np.ones((5, 6)), (10, 10))
 	A.mainloop()
