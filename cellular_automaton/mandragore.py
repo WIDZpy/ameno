@@ -7,6 +7,11 @@ import math
 util function
 '''
 
+def moy_color(c1, c2):
+    l = []
+    for a, b in zip(c1, c2):
+        l.append((a+b)//2)
+    return tuple(l)
 
 def ceil_floor(x):
     if x > 0:

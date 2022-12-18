@@ -108,41 +108,42 @@ class Automaton:
         return
 
     def crop_gen(self):
-        if self.current_gen[0].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0-self.array_pos[0] >= self.shape[0]+self.array_pos[0]):
-            self.current_gen = self.current_gen[1:]
-            self.array_pos[0] += 1
-            self.shape[0] -= 1
-
-            if self.current_gen[0].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0 - self.array_pos[0] >= self.shape[0] + self.array_pos[0]):
+        if not 0 in self.shape:
+            if self.current_gen[0].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0-self.array_pos[0] >= self.shape[0]+self.array_pos[0]):
                 self.current_gen = self.current_gen[1:]
                 self.array_pos[0] += 1
                 self.shape[0] -= 1
 
-        if self.current_gen[-1].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0-self.array_pos[0] <= self.shape[0]+self.array_pos[0]):
-            self.current_gen = self.current_gen[:-1]
-            self.shape[0] -= 1
+                if self.current_gen[0].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0 - self.array_pos[0] >= self.shape[0] + self.array_pos[0]):
+                    self.current_gen = self.current_gen[1:]
+                    self.array_pos[0] += 1
+                    self.shape[0] -= 1
 
-            if self.current_gen[-1].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0 - self.array_pos[0] <= self.shape[0] + self.array_pos[0]):
+            if self.current_gen[-1].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0-self.array_pos[0] <= self.shape[0]+self.array_pos[0]):
                 self.current_gen = self.current_gen[:-1]
                 self.shape[0] -= 1
 
-        if self.current_gen[:, 0].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0-self.array_pos[1] >= self.shape[1]+self.array_pos[1]):
-            self.current_gen = self.current_gen[:, 1:]
-            self.array_pos[1] += 1
-            self.shape[1] -= 1
+                if self.current_gen[-1].sum() == 0 or (self.max_x_y[0] <= self.shape[0] and 0 - self.array_pos[0] <= self.shape[0] + self.array_pos[0]):
+                    self.current_gen = self.current_gen[:-1]
+                    self.shape[0] -= 1
 
-            if self.current_gen[:, 0].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] >= self.shape[1] + self.array_pos[1]):
+            if self.current_gen[:, 0].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0-self.array_pos[1] >= self.shape[1]+self.array_pos[1]):
                 self.current_gen = self.current_gen[:, 1:]
                 self.array_pos[1] += 1
                 self.shape[1] -= 1
 
-        if self.current_gen[:, -1].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] <= self.shape[1] + self.array_pos[1]):
-            self.current_gen = self.current_gen[:, :-1]
-            self.shape[1] -= 1
+                if self.current_gen[:, 0].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] >= self.shape[1] + self.array_pos[1]):
+                    self.current_gen = self.current_gen[:, 1:]
+                    self.array_pos[1] += 1
+                    self.shape[1] -= 1
 
             if self.current_gen[:, -1].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] <= self.shape[1] + self.array_pos[1]):
                 self.current_gen = self.current_gen[:, :-1]
                 self.shape[1] -= 1
+
+                if self.current_gen[:, -1].sum() == 0 or (self.max_x_y[1] <= self.shape[1] and 0 - self.array_pos[1] <= self.shape[1] + self.array_pos[1]):
+                    self.current_gen = self.current_gen[:, :-1]
+                    self.shape[1] -= 1
 
 # ################################################# running #########################################################
 

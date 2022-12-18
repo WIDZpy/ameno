@@ -1,10 +1,12 @@
 from cellular_automaton import polynectar, aparecium, maraudersMap, mandragore
 import numpy as np
+import pygame as pg
 
 
 class Main(polynectar.CellularMain):
 	def __init__(self):
 		super(Main, self).__init__(Display(), Logic())
+		self.simulation.draw_array(np.pad(np.array([[1,1,1], [1,0,1], [1,1,1]]), [[10,10],[10,10]]))
 
 	def mainloop(self):
 		while self.main_loop_condition:

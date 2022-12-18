@@ -23,8 +23,7 @@ class CellularMain:
 		self.edit_mod = False
 		self.affiche_info = True
 
-		self.pg_win.CellClr = color1
-		self.pg_win.BgClr = color2
+		self.pg_win.set_color(color2, color1)
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
 		self.pg_win.racoursit['next'] = self.next_
 		self.pg_win.racoursit['prev'] = self.prev_
@@ -52,6 +51,7 @@ class CellularMain:
 		self.simulation.evolve()
 
 	def edit_(self):
+		self.simulation.pause()
 		self.edit_mod = not self.edit_mod
 
 	def restart_(self):
@@ -78,13 +78,13 @@ class CellularMain:
 	def frame(self):
 		self.clock.tick(60)
 
-		self.pg_win.key_bord_input()
+		self.pg_win.input()
 
 		arr = self.simulation.get_curent_gen(True)
 
 		self.pg_win.set_array_pos(*self.simulation.array_pos)
 
-		self.pg_win.aparecium(arr)
+		self.pg_win.aparecium(arr, self.edit_mod)
 
 		self.menu.menu_clasic_comportement_right_clic()
 

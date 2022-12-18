@@ -90,7 +90,7 @@ class GameOfLife:
 		while program_run:
 			clock.tick(60)
 
-			self.pg_win.key_bord_input()
+			self.pg_win.input()
 			arr = self.game_of_life.get_life(True)
 			self.pg_win.set_decalage(self.game_of_life.bordure[0][0], self.game_of_life.bordure[1][0])
 			self.pg_win.aparecium(arr)

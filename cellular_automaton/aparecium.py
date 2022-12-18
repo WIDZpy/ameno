@@ -43,6 +43,7 @@ class Win:
 		self.camY = 0
 		self.CellClr = 0,0,0
 		self.BgClr = 0,0,0
+		self.OtherClr = 0,0,0
 		self.log_var = ''
 		self.touche = ''
 		self.array_pos = 0, 0
@@ -79,7 +80,12 @@ class Win:
 		self.log_var += "".join([f'{" | " if i % 2 == 0 else ": "}{info[i]}' for i in range(len(info))])
 		return self.log_var
 
-	def aparecium(self, world=np.array([[1, 0, 1], [1, 1, 1], [1, 0, 1]])):
+	def set_color(self, bg, cell):
+		self.BgClr = bg
+		self.CellClr = cell
+		self.OtherClr = mandragore.moy_color(bg,cell)
+
+	def aparecium(self, world: np.array = np.array([[1, 0, 1], [1, 1, 1], [1, 0, 1]]), grid=False):
 		"""
 		fiche un array dans la fenêtre pygame
 		:param world: l'array a afficher dans la fenêtre pygame
@@ -111,6 +117,15 @@ class Win:
 												  cy * self.win_spec['size of cells'] - decalage_y,
 												  self.win_spec['size of cells'], self.win_spec['size of cells']))
 
+		if grid:
+			for loop in range(view.shape[1]-1):
+				pg.draw.line(self.win, self.OtherClr, ((loop+1) * self.win_spec['size of cells'] - decalage_x, 0-decalage_y),
+							 ((loop+1) * self.win_spec['size of cells'] - decalage_x, view.shape[0] * self.win_spec['size of cells']-(decalage_y+1)))
+			for loop in range(view.shape[0]-1):
+				pg.draw.line(self.win, self.OtherClr, (0-decalage_x, (loop+1) * self.win_spec['size of cells'] - decalage_y),
+							 (view.shape[1] * self.win_spec['size of cells'] - (decalage_x+1), (loop + 1) * self.win_spec['size of cells'] - decalage_y))
+
+
 		if self.win_spec['active border']:
 			self.edgeBorders(world.shape, dec_x, dec_y)
 
@@ -133,11 +148,14 @@ class Win:
 											 -1 * dec_y + world_shape[0] * self.win_spec['size of cells'] + self.win_spec['pading'],
 											(self.win_spec['border'] + self.win_spec['pading']) * 2 + world_shape[1] * self.win_spec['size of cells'],self.win_spec['border']))
 
-	def key_bord_input(self):
+	def input(self):
 		speed = 0.5
 		speed_zoom = 10
 		pressed = pg.key.get_pressed()
 		key_event = pg.event.get(pg.KEYDOWN)
+
+		for loop in pg.event.get(pg.MOUSEWHEEL):
+			self.zoom_middle(loop.y)
 
 		# self.log("touche", self.touche)
 
@@ -158,6 +176,13 @@ class Win:
 			if pressed[pg.K_DOWN]:
 				self.moov(0, speed)
 				self.touche = "↓"
+
+		for dep in pg.event.get(pg.MOUSEMOTION):
+			if dep.buttons[0]:
+
+				self.camX -= dep.rel[0]
+				self.camY -= dep.rel[1]
+
 
 		for key in key_event:
 			if key.unicode == ' ':
