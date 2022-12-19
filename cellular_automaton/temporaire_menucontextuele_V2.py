@@ -9,9 +9,9 @@ class MenuContextuele:
 	padding = 5
 	padding_2 = 1
 
-	def __init__(self, color, surface: pygame.surface, width: int = 7, size: int = 20, menu_contenue=None):
-
-		self.surface = surface
+	def __init__(self, color, surface: pygame.surface, menu_contenue=None, width: int = 7, size: int = 20):
+		self.target_surf = surface
+		self.surface = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
 		self.width = width
 		self.size = size
 		self.color = color
@@ -19,7 +19,7 @@ class MenuContextuele:
 		self.hightligh_color = (mandragore.clamp(self.color[0] - self.color[0] * 450 / 100, 0, 255),
 								mandragore.clamp(self.color[1] - self.color[1] * 450 / 100, 0, 255),
 								mandragore.clamp(self.color[2] + self.color[2] * 450 / 100, 0, 255))
-		self.lst_orine = menu_contenue
+		self.lst_orine = menu_contenue if menu_contenue is not None else []
 		self.section_lst = []
 		self.rectangle = [0, 0, 0, 0]
 		self.generate_pg_obbject()
@@ -36,6 +36,7 @@ class MenuContextuele:
 				self.rectangle[3] += 4 + 1
 
 			for obtion in section:
+				print("caca")
 				xpos = self.padding_2
 				pos = self.rectangle[0] + self.rectangle[2], self.rectangle[1] + self.rectangle[3]
 				size = self.width * self.size, self.size
@@ -47,11 +48,17 @@ class MenuContextuele:
 				name_rect.center = (pos[0] + xpos + name_rect[2] / 2, pos[1] + self.size / 2)
 				self.surface.blit(obtion[1].convert_alpha(), name_rect)
 
-				short_rect = object[2].get_rect()
+				short_rect = obtion[2].get_rect()
 				short_rect.center = (pos[0] + size[0] - short_rect.size[0] / 2, pos[1] + self.size / 2)
 				self.surface.blit(obtion[2].convert_alpha(), short_rect)
 
 				self.rectangle[3] += self.size
+
+		self.rectangle[3] += 1 + self.padding
+		self.rectangle[2] += self.width * self.size
+		self.rectangle[2] += self.padding
+		pg.draw.rect(self.target_surf, (255, 255, 0), self.rectangle)
+		self.target_surf.blit(self.surface,(0,0))
 
 	def generate_pg_obbject(self):
 		font_object = pg.font.Font('textures/SmallMemory.ttf', self.size - (self.size//10))
@@ -65,6 +72,4 @@ class MenuContextuele:
 								   font_object.render(obtion[3], True, ((np.array(self.color2) + np.array(self.color)) / 2).tolist())
 								   ])
 
-
-			self.section_lst.append()
-
+			self.section_lst.append(lst_obtion)
