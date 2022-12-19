@@ -16,8 +16,6 @@ class CellularMain:
 		self.pg_win = pg_win
 		self.simulation = simulation
 		self.clock = pg.time.Clock()
-		self.run_menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, color3)
-		self.edit_menu = aparecium.MenuContextuele(self.pg_win.win, 7, 20, color3)
 		self.data_display = aparecium.DataDisplay(color=uti.invertion_colorimetrique(color3), bgcolor=color3)
 
 		self.main_loop_condition = True
@@ -31,16 +29,18 @@ class CellularMain:
 		self.pg_win.racoursit['prev'] = self.prev_
 		self.pg_win.racoursit['restart'] = self.restart_
 
-		self.edit_menu.add_sections([[['textures/buttons/void.png', 'point and clic', self.active_point_clic_, '']],
-									[['textures/buttons/chek.png', 'info', self.afiche_info_, ""],
-								 	['textures/buttons/void.png', 'edit mod', self.edit_mod_, ""], ]])
+		self.edit_menu = aparecium.MenuContextuele(color3, self.pg_win.win,
+												   [[['textures/buttons/void.png', 'point and clic', self.active_point_clic_, '']],
+													[['textures/buttons/chek.png', 'info', self.afiche_info_, ""],
+													 ['textures/buttons/chek.png', 'edit mod', self.edit_mod_, ""], ]], 7, 20)
 
-		self.run_menu.add_sections([[['textures/buttons/prev.png', 'prev', self.prev_, 'ctl + <-'],
-									 ['textures/actions/play.png', 'play', self.play_pause_, 'space'],
-									 ['textures/buttons/next.png', 'next', self.next_, 'ctl + ->'],
-									 ['textures/buttons/turnCCW.png', 'reset', self.restart_, "ctl + <"]],
-									[['textures/buttons/chek.png', 'info', self.afiche_info_, ""],
-								 	['textures/buttons/void.png', 'edit mod', self.edit_mod_, ""], ]])
+		self.run_menu = aparecium.MenuContextuele(color3, self.pg_win.win,
+												  [[['textures/buttons/prev.png', 'prev', self.prev_, 'ctl + <-'],
+													['textures/actions/play.png', 'play', self.play_pause_, 'space'],
+													['textures/buttons/next.png', 'next', self.next_, 'ctl + ->'],
+													['textures/buttons/turnCCW.png', 'reset', self.restart_, "ctl + <"]],
+												   [['textures/buttons/chek.png', 'info', self.afiche_info_, ""],
+													['textures/buttons/void.png', 'edit mod', self.edit_mod_, ""], ]], 7, 20)
 
 	def active_point_clic_(self):
 		pass
@@ -48,10 +48,10 @@ class CellularMain:
 	def play_pause_(self):
 		if not self.simulation.run:
 			self.simulation.play()
-			self.run_menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/pause.png', name='pause')
+			self.run_menu.set_obtion(0, 1, image='textures/actions/pause.png', name='pause')
 		else:
 			self.simulation.pause()
-			self.run_menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
+			self.run_menu.set_obtion(0, 1, image='textures/actions/play.png', name='play')
 
 	def prev_(self):
 		self.simulation.back()
@@ -65,7 +65,7 @@ class CellularMain:
 
 	def restart_(self):
 		self.simulation.pause()
-		self.run_menu.section_lst[0].option_lst[1].set_caracteristic(image='textures/actions/play.png', name='play')
+		self.run_menu.set_obtion(0, 1, image='textures/actions/play.png', name='play')
 		self.simulation.load_historic(0)
 		del self.simulation.historic[1:]
 		self.pg_win.reset_cam()
@@ -73,16 +73,19 @@ class CellularMain:
 	def afiche_info_(self):
 		self.affiche_info = not self.affiche_info
 		if self.affiche_info:
-			self.run_menu.section_lst[1].option_lst[0].set_caracteristic(image='textures/buttons/chek.png')
+			self.edit_menu.set_obtion(1, 0, image='textures/buttons/chek.png')
+			self.run_menu.set_obtion(1, 0, image='textures/buttons/chek.png')
 		else:
-			self.run_menu.section_lst[1].option_lst[0].set_caracteristic(image='textures/buttons/void.png')
+			self.edit_menu.set_obtion(1, 0, image='textures/buttons/void.png')
+			self.run_menu.set_obtion(1, 0, image='textures/buttons/void.png')
 
 	def edit_mod_(self):
 		self.edit_mod = not self.edit_mod
 		if self.edit_mod:
-			self.run_menu.section_lst[1].option_lst[1].set_caracteristic(image='textures/buttons/chek.png')
+			self.run_menu.afiche = False
 		else:
-			self.run_menu.section_lst[1].option_lst[1].set_caracteristic(image='textures/buttons/void.png')
+			self.edit_menu.afiche = False
+
 
 	def frame(self):
 		self.clock.tick(60)

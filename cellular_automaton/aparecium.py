@@ -251,42 +251,49 @@ class Win:
 
 
 class MenuContextuele:
-	rectangle = [0, 0, 0, 0]
 	padding = 5
+	padding_2 = 1
 
-	def __init__(self, surface, width, size, color, menu_contenue=[]):
+	def __init__(self, color, surface: pygame.surface, menu_contenue=None, width: int = 7, size: int = 20):
 
-		self.surface = surface
+		self.target_surf = surface
+		self.surface = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
+
+		self.afiche = False
+		self.pos = (0, 0)
+
 		self.width = width
 		self.size = size
+
 		self.color = color
+		self.color2 = mandragore.invertion_colorimetrique(color)
+		self.color3 = ((np.array(self.color2) + np.array(self.color)) / 2).tolist()
+		self.hightligh_color = (mandragore.clamp(self.color[0] - self.color[0] * 450 / 100, 0, 255),
+								mandragore.clamp(self.color[1] - self.color[1] * 450 / 100, 0, 255),
+								mandragore.clamp(self.color[2] + self.color[2] * 450 / 100, 0, 255))
 
+		self.lst_orine = menu_contenue if menu_contenue is not None else []
 		self.section_lst = []
-		self.add_sections(menu_contenue)
-		self.afiche = False
-		self.menu_surface = None
 
-	def add_sections(self, menu_contenue):
-		for section in menu_contenue:
-			self.section_lst.append(self.Section(section, self.width, self.size, self.color))
-		return
+		self.rectangle = [0, 0, 0, 0]
+
+		self.font_object = pg.font.Font('textures/SmallMemory.ttf', self.size - (self.size // 10))
+
+		self.generate_pg_obbject()
 
 	def menu_clasic_comportement_right_clic(self):
+		souris_event_up_list = pg.event.get(pg.MOUSEBUTTONUP)
 
-		souris_event_up = pg.event.get(pg.MOUSEBUTTONUP)
-
-		if souris_event_up:
-			souris_event_up = souris_event_up[0]
-
+		for souris_event_up in souris_event_up_list:
 			if souris_event_up.button == 3 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
 				self.afiche = True
-				self.rectangle[:2] = souris_event_up.pos
+				self.pos = souris_event_up.pos
 
 			elif souris_event_up.button == 1 and not pg.rect.Rect(self.rectangle).collidepoint(souris_event_up.pos):
 				self.afiche = False
 
 		if self.afiche:
-			self.show_menue(self.surface, self.rectangle[0:2].copy(), self.width, self.size, self.color)
+			self.show(self.pos)
 			if pg.rect.Rect(self.rectangle).collidepoint(pg.mouse.get_pos()):
 				pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
 			else:
@@ -294,146 +301,95 @@ class MenuContextuele:
 		else:
 			pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
-	def show_menue(self, surface, pos, width, size, color):
-
+	def show(self, pos: tuple[int, int]):
 		pos = tuple(pos)
-		self.menu_surface = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
-
+		self.surface = pg.Surface(self.surface.get_size(), pg.SRCALPHA).convert_alpha()
 		self.rectangle[2] = self.padding
 		self.rectangle[3] = self.padding
 		self.rectangle[0:2] = pos
 
+		mouse = pg.event.get(pg.MOUSEBUTTONDOWN)
+
 		for section in self.section_lst:
-			section.show_section(self.menu_surface, self.rectangle, width, size, color, section != self.section_lst[0])
+			if section != self.section_lst[0]:
+				self.rectangle[3] += 4
+				pg.draw.line(self.surface, mandragore.invertion_colorimetrique(self.color), (self.rectangle[0] + self.rectangle[2], self.rectangle[1] + self.rectangle[3]),
+							 (self.rectangle[0] + self.rectangle[2] + self.width * self.size, self.rectangle[1] + self.rectangle[3]), 1)
+				self.rectangle[3] += 4 + 1
 
-		self.rectangle[2] += width * size
-		self.rectangle[2] += self.padding
+			for obtion in section:
+
+				xpos = self.padding_2
+				pos = self.rectangle[0] + self.rectangle[2], self.rectangle[1] + self.rectangle[3]
+				size = self.width * self.size, self.size
+				obtion_rect = (*pos, *size)
+
+				for ev in mouse:
+
+					if pg.rect.Rect(obtion_rect).collidepoint(ev.pos):
+						obtion[3]()
+
+				if pg.rect.Rect(obtion_rect).collidepoint(pg.mouse.get_pos()):
+					pg.draw.rect(self.surface, self.hightligh_color, obtion_rect)
+
+				self.surface.blit(obtion[0].convert_alpha(), (pos[0] + xpos, pos[1] + self.padding_2))
+				xpos += self.size - 2 * self.padding_2 + self.padding_2
+
+				name_rect = obtion[1].get_rect()
+				name_rect.center = (pos[0] + xpos + name_rect[2] / 2, pos[1] + self.size / 2)
+				self.surface.blit(obtion[1].convert_alpha(), name_rect)
+
+				short_rect = obtion[2].get_rect()
+				short_rect.center = (pos[0] + size[0] - short_rect.size[0] / 2, pos[1] + self.size / 2)
+				self.surface.blit(obtion[2].convert_alpha(), short_rect)
+
+				self.rectangle[3] += self.size
+
 		self.rectangle[3] += 1 + self.padding
-		pg.draw.rect(surface, (np.array((mandragore.invertion_colorimetrique(color)) + np.array(color)) / 2).tolist(), self.rectangle)
-		pg.draw.rect(surface, color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
-		surface.blit(self.menu_surface, (0, 0))
-		# self.rectangle = [0,0,0,0]
-		return
+		self.rectangle[2] += self.width * self.size
+		self.rectangle[2] += self.padding
+		pg.draw.rect(self.target_surf, self.color3, self.rectangle)
+		pg.draw.rect(self.target_surf, self.color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
+		self.target_surf.blit(self.surface, (0, 0))
 
-	class Section:
-		def __init__(self, options, width, size, color):
-			self.option_lst = []
-			self.add_options(options, width, size, color)
+	def generate_pg_obbject(self):
+		self.font_object = pg.font.Font('textures/SmallMemory.ttf', self.size - (self.size // 10))
+		self.section_lst = []
+		for section in self.lst_orine:
+			lst_obtion = []
+			for obtion in section:
+				lst_obtion.append([pg.transform.scale(pg.image.load(obtion[0]) if obtion[0] != '' else pg.image.load('../textures/buttons/void.png'),
+													  (self.size - 2 * self.padding_2, self.size - 2 * self.padding_2)),
+								   self.font_object.render(obtion[1], True, self.color2),
+								   self.font_object.render(obtion[3], True, self.color3),
+								   obtion[2]
+								   ])
 
-		def add_options(self, options, width, size, color):
-			for option in options:
-				self.option_lst.append(self.Option(*option, width, size, color))
+			self.section_lst.append(lst_obtion)
 
-		def show_section(self, surface, rect, width, size, color, line=True):
-			if line:
-				rect[3] += 4
-				pg.draw.line(surface, mandragore.invertion_colorimetrique(color), (rect[0] + rect[2], rect[1] + rect[3]), (rect[0] + rect[2] + width * size, rect[1] + rect[3]), 1)
-				rect[3] += 4 + 1
+	def set_color(self, color):
+		self.color = color
+		self.color2 = mandragore.invertion_colorimetrique(color)
+		self.color3 = ((np.array(self.color2) + np.array(self.color)) / 2).tolist()
 
-			for option in self.option_lst:
-				option.show_option(surface, rect, width, size, color)
-				rect[3] += size
+		self.hightligh_color = (mandragore.clamp(self.color[0] - self.color[0] * 450 / 100, 0, 255),
+								mandragore.clamp(self.color[1] - self.color[1] * 450 / 100, 0, 255),
+								mandragore.clamp(self.color[2] + self.color[2] * 450 / 100, 0, 255))
 
-		class Option:
-			padding_y = 1
-			border_image = padding_y
-			image_title = padding_y
-			short_border = padding_y
-			font = 'textures/SmallMemory.ttf'
-			color_coef = 450
+	def set_obtion(self, section_index, obtion_index, image=None, name=None, short=None, func=None):
+		obtion = self.section_lst[section_index][obtion_index]
+		if image is not None:
+			obtion[0] = pg.transform.scale(pg.image.load(image) if image != '' else pg.image.load('../textures/buttons/void.png'),
+										   (self.size - 2 * self.padding_2, self.size - 2 * self.padding_2))
 
-			def __init__(self, image, name, function, short, width, size, color):
-				self.image = pg.image.load(image) if image != '' else pg.image.load('../textures/buttons/void.png')
-				self.name = name
-				self.function = function
-				self.short = short
+		if name is not None:
+			obtion[1] = self.font_object.render(name, True, self.color2)
 
-				######################################################################################################################
+		if short is not None:
+			obtion[2] = self.font_object.render(short, True, self.color3)
 
-				self.main_rect = 0, 0, 0, 0
-				self.bg_color = (0, 0, 0)
-				self.historry_pos = None
-				self.pos = (0, 0)
-				self.color = color
-				self.rect = [0, 0, 0, 0]
-				self.width = width
-				self.size = size
-
-				self.image_size = (0, 0)
-				self.image_pos = (0, 0)
-
-				self.font_object = None
-
-				self.name_surf = None
-				self.name_rect = None
-
-				self.short_surf = None
-				self.short_rect = None
-
-				pg.font.init()
-
-			def set_caracteristic(self, image=None, name=None, short=None, fonction=None):
-
-				self.name = name if name is not None else self.name
-				self.image = (pg.image.load(image) if image is not None else self.image) if image != '' else pg.image.load(textures/buttons/void.png)
-				self.short = short if short is not None else self.short
-				self.function = fonction if fonction is not None else self.function
-
-				self.update()
-
-			def update(self):
-				self.historry_pos = self.rect[:2]
-
-				self.bg_color = mandragore.clamp(self.color[0] - self.color[0] * self.color_coef / 100, 0, 255), \
-								mandragore.clamp(self.color[1] - self.color[1] * self.color_coef / 100, 0, 255), \
-								mandragore.clamp(self.color[2] + self.color[2] * self.color_coef / 100, 0, 255)
-
-				xpos = self.border_image
-
-				self.pos = self.rect[0] + self.rect[2], self.rect[1] + self.rect[3]
-				self.main_rect = (*self.pos[:2], self.width * self.size, self.size)
-
-				self.image_size = (self.size - 2 * self.padding_y, self.size - 2 * self.padding_y)
-				self.image_pos = (self.pos[0] + xpos, self.pos[1] + self.padding_y)
-				self.image = pg.transform.scale(self.image, self.image_size)
-
-				xpos += self.size - 2 * self.padding_y + self.image_title
-				# self.font_object = pg.font.Font(self.font, self.size - 2 * self.padding_y)
-
-				self.font_object = pg.font.Font('textures/SmallMemory.ttf', 18)
-				self.name_surf = self.font_object.render(self.name, True, mandragore.invertion_colorimetrique(self.color))
-				self.name_rect = self.name_surf.get_rect()
-				self.name_rect.center = (self.pos[0] + xpos + self.name_rect[2] / 2, self.pos[1] + self.size / 2)
-
-				self.short_surf = self.font_object.render(self.short, True, (np.array((mandragore.invertion_colorimetrique(self.color)) + np.array(self.color)) / 2).tolist())
-				self.short_rect = self.short_surf.get_rect()
-				self.short_rect.center = (self.pos[0] + self.main_rect[2] - self.short_rect.size[0] / 2, self.pos[1] + self.size / 2)
-
-			def show_option(self, surface, rect, width, size, color):
-				self.rect = rect.copy()
-
-				if rect[:2] != self.historry_pos:
-					self.update()
-
-				hillighted = False
-				if pg.rect.Rect(self.main_rect).collidepoint(pg.mouse.get_pos()):
-					hillighted = True
-
-				mouse = pg.event.get(pg.MOUSEBUTTONDOWN)
-				if mouse:
-					mouse2 = mouse[0]
-					if pg.rect.Rect(self.main_rect).collidepoint(mouse2.pos):
-						self.function()
-					else:
-						pg.event.post(mouse2)
-
-				bg_color = self.bg_color if hillighted else color
-
-				pg.draw.rect(surface, bg_color, self.main_rect)
-
-				surface.blit(self.image.convert_alpha(), self.image_pos)
-				surface.blit(self.name_surf.convert_alpha(), self.name_rect)
-				surface.blit(self.short_surf.convert_alpha(), self.short_rect)
+		if func is not None:
+			obtion[3] = func
 
 
 class DataDisplay:

@@ -22,6 +22,7 @@ class MenuContextuele:
 
 		self.color = color
 		self.color2 = mandragore.invertion_colorimetrique(color)
+		self.color3 = ((np.array(self.color2) + np.array(self.color)) / 2).tolist()
 		self.hightligh_color = (mandragore.clamp(self.color[0] - self.color[0] * 450 / 100, 0, 255),
 								mandragore.clamp(self.color[1] - self.color[1] * 450 / 100, 0, 255),
 								mandragore.clamp(self.color[2] + self.color[2] * 450 / 100, 0, 255))
@@ -30,6 +31,8 @@ class MenuContextuele:
 		self.section_lst = []
 
 		self.rectangle = [0, 0, 0, 0]
+
+		self.font_object = pg.font.Font('textures/SmallMemory.ttf', self.size - (self.size // 10))
 
 		self.generate_pg_obbject()
 
@@ -106,16 +109,40 @@ class MenuContextuele:
 		self.target_surf.blit(self.surface, (0, 0))
 
 	def generate_pg_obbject(self):
-		font_object = pg.font.Font('textures/SmallMemory.ttf', self.size - (self.size//10))
+		self.font_object = pg.font.Font('textures/SmallMemory.ttf', self.size - (self.size//10))
 		self.section_lst = []
 		for section in self.lst_orine:
 			lst_obtion = []
 			for obtion in section:
 				lst_obtion.append([pg.transform.scale(pg.image.load(obtion[0]) if obtion[0] != '' else pg.image.load('../textures/buttons/void.png'),
 													  (self.size - 2 * self.padding_2, self.size - 2 * self.padding_2)),
-								   font_object.render(obtion[1], True, self.color2),
-								   font_object.render(obtion[3], True, ((np.array(self.color2) + np.array(self.color)) / 2).tolist()),
+								   self.font_object.render(obtion[1], True, self.color2),
+								   self.font_object.render(obtion[3], True, self.color3),
 								   obtion[2]
 								   ])
 
 			self.section_lst.append(lst_obtion)
+
+	def set_color(self, color):
+		self.color = color
+		self.color2 = mandragore.invertion_colorimetrique(color)
+		self.color3 = ((np.array(self.color2) + np.array(self.color)) / 2).tolist()
+
+		self.hightligh_color = (mandragore.clamp(self.color[0] - self.color[0] * 450 / 100, 0, 255),
+								mandragore.clamp(self.color[1] - self.color[1] * 450 / 100, 0, 255),
+								mandragore.clamp(self.color[2] + self.color[2] * 450 / 100, 0, 255))
+
+	def set_obtion(self, section_index, obtion_index, image=None, name=None, short=None, func=None):
+		obtion = self.section_lst[section_index][obtion_index]
+		if image is not None:
+			obtion[0] = pg.transform.scale(pg.image.load(image) if image != '' else pg.image.load('../textures/buttons/void.png'),
+							   (self.size - 2 * self.padding_2, self.size - 2 * self.padding_2)),
+
+		if name is not None:
+			obtion[1] = self.font_object.render(name, True, self.color2)
+
+		if short is not None:
+			obtion[2] = self.font_object.render(short, True, self.color3)
+
+		if func is not None:
+			obtion[3] = func
