@@ -258,9 +258,11 @@ class MenuContextuele:
 
 		self.target_surf = surface
 		self.surface = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
+		self.fond_surf = pg.Surface(surface.get_size(), pg.SRCALPHA).convert_alpha()
 
 		self.afiche = False
 		self.pos = (0, 0)
+		self.historic_pos = (0, 0)
 
 		self.width = width
 		self.size = size
@@ -274,6 +276,8 @@ class MenuContextuele:
 
 		self.lst_orine = menu_contenue if menu_contenue is not None else []
 		self.section_lst = []
+		self.menu_lst = []
+
 
 		self.rectangle = [0, 0, 0, 0]
 
@@ -301,56 +305,92 @@ class MenuContextuele:
 		else:
 			pg.mouse.set_cursor(pg.SYSTEM_CURSOR_SIZEALL)
 
-	def show(self, pos: tuple[int, int]):
+	def update(self, pos: tuple[int, int]):
 		pos = tuple(pos)
 		self.surface = pg.Surface(self.target_surf.get_size(), pg.SRCALPHA).convert_alpha()
+		self.fond_surf = pg.Surface(self.target_surf.get_size(), pg.SRCALPHA).convert_alpha()
 		self.rectangle[2] = self.padding
 		self.rectangle[3] = self.padding
 		self.rectangle[0:2] = pos
 
-		mouse = pg.event.get(pg.MOUSEBUTTONDOWN)
+		line_surface = pg.Surface(self.target_surf.get_size(), pg.SRCALPHA).convert_alpha()
+
+
+
+		self.menu_lst = []
 
 		for section in self.section_lst:
+			section_lst = []
 			if section != self.section_lst[0]:
 				self.rectangle[3] += 4
-				pg.draw.line(self.surface, mandragore.invertion_colorimetrique(self.color), (self.rectangle[0] + self.rectangle[2], self.rectangle[1] + self.rectangle[3]),
+				pg.draw.line(line_surface, mandragore.invertion_colorimetrique(self.color), (self.rectangle[0] + self.rectangle[2], self.rectangle[1] + self.rectangle[3]),
 							 (self.rectangle[0] + self.rectangle[2] + self.width * self.size, self.rectangle[1] + self.rectangle[3]), 1)
 				self.rectangle[3] += 4 + 1
 
 			for obtion in section:
-
+				obtion_lst = []
 				xpos = self.padding_2
 				pos = self.rectangle[0] + self.rectangle[2], self.rectangle[1] + self.rectangle[3]
 				size = self.width * self.size, self.size
 				obtion_rect = (*pos, *size)
 
-				for ev in mouse:
+				obtion_lst.append(obtion_rect)
+				obtion_lst.append(obtion[3])
+				obtion_lst.append((obtion[0].convert_alpha(), (pos[0] + xpos, pos[1] + self.padding_2)))
 
-					if pg.rect.Rect(obtion_rect).collidepoint(ev.pos) and ev.button == 1:
-						obtion[3]()
-
-				if pg.rect.Rect(obtion_rect).collidepoint(pg.mouse.get_pos()):
-					pg.draw.rect(self.surface, self.hightligh_color, obtion_rect)
-
-				self.surface.blit(obtion[0].convert_alpha(), (pos[0] + xpos, pos[1] + self.padding_2))
+ 	
 				xpos += self.size - 2 * self.padding_2 + self.padding_2
 
 				name_rect = obtion[1].get_rect()
 				name_rect.center = (pos[0] + xpos + name_rect[2] / 2, pos[1] + self.size / 2)
-				self.surface.blit(obtion[1].convert_alpha(), name_rect)
+
+				obtion_lst.append((obtion[1].convert_alpha(), name_rect))
+
+
 
 				short_rect = obtion[2].get_rect()
 				short_rect.center = (pos[0] + size[0] - short_rect.size[0] / 2, pos[1] + self.size / 2)
-				self.surface.blit(obtion[2].convert_alpha(), short_rect)
+
+				obtion_lst.append((obtion[2].convert_alpha(), short_rect))
+
+
 
 				self.rectangle[3] += self.size
+				section_lst.append(obtion_lst)
 
+			self.menu_lst.append(section_lst)
 		self.rectangle[3] += 1 + self.padding
 		self.rectangle[2] += self.width * self.size
 		self.rectangle[2] += self.padding
-		pg.draw.rect(self.target_surf, self.color3, self.rectangle)
-		pg.draw.rect(self.target_surf, self.color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
+		pg.draw.rect(self.fond_surf, self.color3, self.rectangle)
+		pg.draw.rect(self.fond_surf, self.color, (self.rectangle[0] + 1, self.rectangle[1] + 1, self.rectangle[2] - 2, self.rectangle[3] - 2))
+		self.fond_surf.blit(line_surface, (0, 0))
+
+	def show(self, pos):
+		mouse = pg.event.get(pg.MOUSEBUTTONDOWN)
+		if pos != self.historic_pos:
+			self.update(self.pos)
+			self.historic_pos = pos
+
+		self.surface.blit(self.fond_surf,(0,0))
+		for section in self.menu_lst:
+			for obtion in section:
+				for ev in mouse:
+					if pg.rect.Rect(obtion[0]).collidepoint(ev.pos) and ev.button == 1:
+						obtion[1]()
+
+				if pg.rect.Rect(obtion[0]).collidepoint(pg.mouse.get_pos()):
+					pg.draw.rect(self.surface, self.hightligh_color, obtion[0])
+
+				self.surface.blit(*obtion[2])
+				self.surface.blit(*obtion[3])
+				self.surface.blit(*obtion[4])
+
 		self.target_surf.blit(self.surface, (0, 0))
+
+
+
+
 
 	def generate_pg_obbject(self):
 		self.font_object = pg.font.Font('textures/SmallMemory.ttf', self.size - (self.size // 10))
@@ -390,6 +430,8 @@ class MenuContextuele:
 
 		if func is not None:
 			obtion[3] = func
+
+		self.update(self.pos)
 
 	def pxcord_arraycord(self,cord:tuple[int, int]):
 
