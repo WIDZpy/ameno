@@ -303,7 +303,7 @@ class MenuContextuele:
 
 	def show(self, pos: tuple[int, int]):
 		pos = tuple(pos)
-		self.surface = pg.Surface(self.surface.get_size(), pg.SRCALPHA).convert_alpha()
+		self.surface = pg.Surface(self.target_surf.get_size(), pg.SRCALPHA).convert_alpha()
 		self.rectangle[2] = self.padding
 		self.rectangle[3] = self.padding
 		self.rectangle[0:2] = pos
@@ -326,7 +326,7 @@ class MenuContextuele:
 
 				for ev in mouse:
 
-					if pg.rect.Rect(obtion_rect).collidepoint(ev.pos):
+					if pg.rect.Rect(obtion_rect).collidepoint(ev.pos) and ev.button == 1:
 						obtion[3]()
 
 				if pg.rect.Rect(obtion_rect).collidepoint(pg.mouse.get_pos()):
@@ -390,6 +390,10 @@ class MenuContextuele:
 
 		if func is not None:
 			obtion[3] = func
+
+	def pxcord_arraycord(self,cord:tuple[int, int]):
+
+		return
 
 
 class DataDisplay:

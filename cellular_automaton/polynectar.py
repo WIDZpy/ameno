@@ -108,6 +108,7 @@ class CellularMain:
 			"fps": round(self.clock.get_fps()),
 			"viventes": self.simulation.current_gen.sum(),
 			"taile": self.simulation.shape,
+
 		})
 
 		if self.affiche_info:
