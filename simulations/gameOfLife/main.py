@@ -6,7 +6,7 @@ import pygame as pg
 class Main(polynectar.CellularMain):
 	def __init__(self):
 		super(Main, self).__init__(Display(), Logic())
-		self.simulation.draw_array(np.pad(np.array([[1,1,1], [1,0,1], [1,1,1]]), [[10,10],[10,10]]))
+		self.simulation.draw_array(np.pad(np.array([[1,1,1], [1,0,1], [1,1,1]]), [[100,100],[100,100]]))
 
 	def mainloop(self):
 		while self.main_loop_condition:

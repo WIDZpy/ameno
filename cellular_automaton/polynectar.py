@@ -25,6 +25,7 @@ class CellularMain:
 		self.affiche_info = True
 
 		self.pg_win.set_color(color2, color1)
+
 		self.pg_win.racoursit['play/pause'] = self.play_pause_
 		self.pg_win.racoursit['next'] = self.next_
 		self.pg_win.racoursit['prev'] = self.prev_
